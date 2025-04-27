@@ -8,11 +8,15 @@ const LandingPage = () => {
   return (
     <div className="landing-container">
       <div className="landing-content">
-        <h1>Dijital Ajanda ile hayatını planla, kişisel asisitanını oluştur</h1>
+        <h3>
+          <span>Aventra'ya Hoş Geldin!</span>
+        </h3>
+        <p>Hayat bir macera; her anı kaydetmeye, büyümeye ve keşfetmeye değer. </p>
+        <p>Hedeflerini belirle, alışkanlıklarını inşa et ve odaklanarak yolculuğunu başlat.</p>
         <button onClick={() => navigate('/login')}>Bize Katıl</button>
       </div>
     </div>
   );
 };
 
-export default LandingPage; 
+export default LandingPage;

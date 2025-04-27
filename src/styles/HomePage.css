@@ -1,46 +1,209 @@
 .home-container {
   height: 100vh;
-  width: 100%;
+  width: 100vw;
   background-image: url('../assets/Anasayfa.jpg');
   background-size: cover;
   background-position: center;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
+  overflow: hidden;
+}
+
+.center-content {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
 }
 
 .welcome-message, .clock-container {
   text-align: center;
-  color: white;
-  background-color: transparent;
-  padding: 2rem;
-  border-radius: 10px;
+  color: #fff;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-.welcome-message h1, .clock-container h1 {
+.welcome-message h1 {
   font-size: 4rem;
   margin: 0;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8); /* Siyah gölge */
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 2px 8px #000a, 0 1px 2px #222;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  filter: none;
+  animation: fadeIn 1.2s cubic-bezier(.4,2,.6,1);
 }
 
-/* Animation for welcome message */
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+.clock-container h1 {
+  font-size: 4rem;
+  margin: 0;
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 2px 8px #000a, 0 1px 2px #222;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  filter: none;
+  animation: fadeIn 1.2s cubic-bezier(.4,2,.6,1);
 }
 
-.welcome-message {
-  animation: fadeOut 1s ease-in-out 2s forwards;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* Sağ üst focus simgesi */
+.focus-mode-icon {
+  position: fixed;
+  top: 32px;
+  right: 38px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: rgba(0,0,0,0.18);
+  border-radius: 50px;
+  padding: 6px 18px 6px 10px;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 12px #0002;
+}
+.focus-mode-icon:hover {
+  background: rgba(56,249,215,0.18);
+  box-shadow: 0 4px 24px #38f9d7aa;
+}
+.focus-mode-count {
+  font-size: 1.2rem;
+  color: #fff;
+  font-weight: 700;
+  margin-left: 2px;
+  text-shadow: 0 2px 8px #000a;
+}
+.focus-tooltip {
+  position: absolute;
+  top: -38px;
+  right: 0;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 100;
+  box-shadow: 0 2px 8px #0005;
+  animation: fadeIn 0.2s;
+}
+
+/* Yuvarlak timer/chronometre alanı */
+.circle-timer {
+  width: 340px;
+  height: 340px;
+  background: rgba(0,0,0,0.18);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px #0003, 0 2px 8px #38f9d7aa;
+  margin-top: 0;
+  position: relative;
+  animation: fadeIn 0.7s cubic-bezier(.4,2,.6,1);
+}
+.circle-timer-icon {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  background: rgba(0,0,0,0.18);
+  border-radius: 50%;
+  padding: 6px;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.circle-timer-icon:hover {
+  background: rgba(56,249,215,0.18);
+}
+.mode-tooltip {
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 100;
+  box-shadow: 0 2px 8px #0005;
+  animation: fadeIn 0.2s;
+}
+.circle-timer-time {
+  font-size: 5rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 4px 32px #000, 0 1px 2px #222, 0 0 16px #fff8;
+  margin-top: 60px;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+}
+.circle-timer-buttons {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+.timer-btn {
+  padding: 0.7em 2.2em;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+  border: none;
+  border-radius: 2em;
+  box-shadow: 0 4px 24px #0002, 0 1.5px 4px #38f9d7aa;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(.4,2,.6,1);
+  letter-spacing: 1px;
+  outline: none;
+  display: inline-block;
+}
+.timer-btn:hover, .timer-btn:focus {
+  background: linear-gradient(90deg, #38f9d7 0%, #43e97b 100%);
+  color: #222;
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 8px 32px #38f9d7aa, 0 2px 8px #0003;
+}
+
+/* Sağ alt çıkış butonu (önceki gibi bırakıldı) */
 .logout-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  background-color: rgba(0, 0, 0, 0.6);
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.8);
   color: white;
   border: none;
   border-radius: 50%;
@@ -50,23 +213,17 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  z-index: 20;
 }
-
 .logout-button:hover {
-  background-color: rgba(220, 53, 69, 0.9);
-  transform: scale(1.1);
+  background-color: rgba(220, 53, 69, 1);
+  transform: scale(1.15);
 }
-
 .logout-button svg {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
-
-/* Tooltip styles */
-.logout-button {
-  position: fixed;
-}
-
 .logout-button::after {
   content: 'Çıkış Yap';
   position: absolute;
@@ -75,16 +232,49 @@
   transform: translateX(50%);
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 8px 15px;
+  border-radius: 5px;
   font-size: 14px;
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
 }
-
 .logout-button:hover::after {
   opacity: 1;
   visibility: visible;
-} 
+}
+
+@media (max-width: 600px) {
+  .circle-timer {
+    width: 90vw;
+    height: 90vw;
+    min-width: 220px;
+    min-height: 220px;
+    max-width: 98vw;
+    max-height: 98vw;
+  }
+  .circle-timer-time {
+    font-size: 2.5rem;
+    margin-top: 40px;
+    margin-bottom: 18px;
+  }
+  .welcome-message h1, .clock-container h1 {
+    font-size: 2.2rem;
+  }
+  .focus-mode-icon {
+    top: 12px;
+    right: 10px;
+    padding: 4px 10px 4px 6px;
+  }
+  .logout-button {
+    width: 40px;
+    height: 40px;
+    bottom: 10px;
+    right: 10px;
+  }
+  .logout-button svg {
+    width: 18px;
+    height: 18px;
+  }
+}
