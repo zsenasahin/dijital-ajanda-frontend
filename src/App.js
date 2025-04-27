@@ -1,13 +1,19 @@
 import React from 'react';
-import Register from './components/Register';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
 
-const App = () => {
+function App() {
   return (
-    <div className="App">
-      <h1>Welcome to Dijital Ajanda</h1>
-      <Register />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/home" element={<HomePage />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;
