@@ -44,6 +44,22 @@ const ChronoIcon = () => (
   </svg>
 );
 
+const TaskIcon = () => (
+  <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 11l3 3L22 4" stroke="#fff"/>
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#fff"/>
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+    <line x1="10" y1="11" x2="10" y2="17" />
+    <line x1="14" y1="11" x2="14" y2="17" />
+  </svg>
+);
+
 const TIMER_DEFAULT = 25 * 60; // 25:00
 
 const initialWidgets = [
@@ -59,6 +75,9 @@ const HomePage = () => {
   const [timerRunning, setTimerRunning] = useState(false);
   const [chrono, setChrono] = useState(0);
   const [chronoRunning, setChronoRunning] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState('');
+  const [showTasks, setShowTasks] = useState(false);
   const navigate = useNavigate();
   const timerRef = useRef();
   const chronoRef = useRef();
@@ -117,16 +136,82 @@ const HomePage = () => {
     setWidgets((prev) => prev.map(w => w.type === type ? { ...w, visible: false } : w));
   };
 
+  const handleAddTask = (e) => {
+    e.preventDefault();
+    if (!newTask.trim()) return;
+    
+    const newTaskItem = {
+      id: Date.now(),
+      text: newTask.trim(),
+      completed: false
+    };
+    
+    setTasks(prevTasks => [...prevTasks, newTaskItem]);
+    setNewTask('');
+  };
+
+  const toggleTask = (taskId) => {
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task.id === taskId ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const deleteTask = (taskId) => {
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+  };
+
   // Render
   return (
     <div className="home-container">
       {/* Sol üst universal menü */}
       <UniversalMenu />
       {/* Sağ üst focus simgesi */}
-      <div className="focus-mode-icon" onClick={() => setMode(mode === 'clock' ? 'timer' : 'clock')} onMouseEnter={()=>setFocusTooltip(true)} onMouseLeave={()=>setFocusTooltip(false)}>
-        <FocusIcon />
-        <span className="focus-mode-count">0</span>
-        {focusTooltip && <span className="focus-tooltip">focus mode</span>}
+      <div className="top-icons">
+        <div className="task-icon-wrapper">
+          <div className="task-icon" onClick={() => setShowTasks(!showTasks)}>
+            <TaskIcon />
+            <span className="task-count">{tasks.length}</span>
+          </div>
+          {showTasks && (
+            <div className="task-container">
+              <form onSubmit={handleAddTask} className="task-form">
+                <input
+                  type="text"
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                  placeholder="Yeni Görev"
+                  className="task-input"
+                />
+                <button type="submit" className="task-add-btn" title="Ekle">+</button>
+              </form>
+              <div className="task-list">
+                {tasks.map(task => (
+                  <div key={task.id} className="task-item">
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={() => toggleTask(task.id)}
+                      className="task-checkbox"
+                    />
+                    <span className={`task-text ${task.completed ? 'completed' : ''}`}>{task.text}</span>
+                    <button onClick={() => deleteTask(task.id)} className="task-delete-btn" title="Sil">
+                      <TrashIcon />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="focus-mode-icon-wrapper">
+          <div className="focus-mode-icon" onClick={() => setMode(mode === 'clock' ? 'timer' : 'clock')} onMouseEnter={()=>setFocusTooltip(true)} onMouseLeave={()=>setFocusTooltip(false)}>
+            <FocusIcon />
+            <span className="focus-mode-count">0</span>
+            {focusTooltip && <span className="focus-tooltip">focus mode</span>}
+          </div>
+        </div>
       </div>
       {/* Ortadaki ana alan */}
       <div className="center-content">
