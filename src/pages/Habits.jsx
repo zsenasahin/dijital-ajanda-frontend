@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
 import axios from 'axios';
 import '../styles/Habits.css';
-import backgroundImage from '../assets/habbit-tracker.jpg';
+import backgroundImage from '../assets/habbit-tracker-page.jpg';
+
+const MOTIVATION = 'Küçük adımlar, büyük değişimler yaratır.';
 
 const Habits = () => {
     const navigate = useNavigate();
@@ -17,7 +19,8 @@ const Habits = () => {
         completedDays: []
     });
     const [menuOpen, setMenuOpen] = useState(false);
-    const userId = 1;
+    const [showModal, setShowModal] = useState(false);
+    const userId = localStorage.getItem('userId') || 1;
 
     useEffect(() => {
         loadHabits();
@@ -132,96 +135,57 @@ const Habits = () => {
         return days;
     };
 
+    const handleAddHabit = async (e) => {
+        e.preventDefault();
+        if (!formData.title || !formData.startDate || !formData.endDate) return;
+        const userId = localStorage.getItem('userId') || 1;
+        try {
+            const response = await axios.post('https://localhost:7255/api/Habits', {
+                title: formData.title,
+                description: '',
+                startDate: new Date(formData.startDate),
+                endDate: new Date(formData.endDate),
+                completedDays: [],
+                userId: Number(userId)
+            });
+            setFormData({ title: '', startDate: '', endDate: '', completedDays: [] });
+            setShowModal(false);
+            setHabits(prev => [...prev, response.data]);
+        } catch (err) {
+            alert('Alışkanlık eklenirken hata oluştu!');
+            console.error(err);
+        }
+    };
+
+    const toggleDay = (habitIdx, dayIdx) => {
+        setHabits(habits => habits.map((h, i) => i === habitIdx ? {
+            ...h,
+            completed: h.completedDays.map((c, j) => j === dayIdx ? !c : c)
+        } : h));
+        loadHabits();
+    };
+
     return (
-        <div className="habits-page">
-            <UniversalMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-            
-            <div className="habits-cover" style={{ backgroundImage: `url(${backgroundImage})` }}>
-                <div className="habits-cover-content">
-                    <h1 className="habits-cover-title">Alışkanlıklar</h1>
-                    <button className="habits-new-btn-small" onClick={() => handleOpenModal()}>
-                        + Yeni
-                    </button>
-                </div>
+        <div className="habits-bg" style={{ backgroundImage: `url(${backgroundImage})` }}>
+            <div className="habits-center-box">
+                <div className="motivation-text">{MOTIVATION}</div>
+                <button className="add-habit-btn" onClick={() => setShowModal(true)}>Ekle</button>
             </div>
-
-            <div className="habits-list-section">
-                {habits.map((habit) => {
-                    const days = getDaysBetweenDates(habit.startDate, habit.endDate);
-                    return (
-                        <div key={habit.id} className="habits-task">
-                            <div className="habits-task-header">
-                                <div className="habit-task-container">
-                                    <h3 className="habits-task-title">{habit.title}</h3>
-                                    <p className="habit-description">{habit.description}</p>
-                                    <div className="habit-dates">
-                                        <span>Başlangıç: {new Date(habit.startDate).toLocaleDateString('tr-TR')}</span>
-                                        {habit.endDate && <span>Bitiş: {new Date(habit.endDate).toLocaleDateString('tr-TR')}</span>}
-                                    </div>
-                                    <div className="habit-days">
-                                        {days.map((day, index) => (
-                                            <button
-                                                key={index}
-                                                className={`habit-day ${habit.completedDays?.includes(index) ? 'completed' : ''}`}
-                                                onClick={() => toggleDayCompletion(habit.id, index)}
-                                                title={day.toLocaleDateString('tr-TR')}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="habit-actions">
-                                    <button className="habits-toggle-btn" onClick={() => handleOpenModal(habit)}>✎</button>
-                                    <button className="habits-toggle-btn" onClick={() => handleDelete(habit.id)}>×</button>
-                                </div>
+            {showModal && (
+                <div className="habit-modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="habit-modal" onClick={e => e.stopPropagation()}>
+                        <h2>Alışkanlık Ekle</h2>
+                        <form onSubmit={handleAddHabit}>
+                            <input type="text" placeholder="Alışkanlık adı" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
+                            <div className="habit-modal-dates">
+                                <label>Başlangıç: <input type="date" value={formData.startDate} onChange={e => setFormData({ ...formData, startDate: e.target.value })} required /></label>
+                                <label>Bitiş: <input type="date" value={formData.endDate} onChange={e => setFormData({ ...formData, endDate: e.target.value })} required /></label>
                             </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {modal.open && (
-                <div className="habits-popup-overlay">
-                    <div className="habits-popup">
-                        <h2>{modal.mode === 'add' ? 'Yeni Alışkanlık' : 'Alışkanlığı Düzenle'}</h2>
-                        <div className="form-group">
-                            <label>Başlık</label>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Açıklama</label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Başlangıç Tarihi</label>
-                            <input
-                                type="date"
-                                value={formData.startDate}
-                                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Bitiş Tarihi</label>
-                            <input
-                                type="date"
-                                value={formData.endDate}
-                                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                            />
-                        </div>
-                        <div className="habits-popup-actions">
-                            <button onClick={handleCloseModal}>İptal</button>
-                            <button onClick={handleSubmit} className="submit-button">
-                                {modal.mode === 'add' ? 'Oluştur' : 'Güncelle'}
-                            </button>
-                        </div>
+                            <div className="habit-modal-actions">
+                                <button type="button" onClick={() => setShowModal(false)}>İptal</button>
+                                <button type="submit">Ekle</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

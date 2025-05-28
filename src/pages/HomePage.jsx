@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
 import '../styles/HomePage.css';
+import axios from 'axios';
 
 const LogoutIcon = () => (
   <svg
@@ -83,6 +84,9 @@ const HomePage = () => {
   const chronoRef = useRef();
   const [widgets, setWidgets] = useState(initialWidgets);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [focusCount, setFocusCount] = useState(0);
+  const [focusTotalSeconds, setFocusTotalSeconds] = useState(0);
+  const [focusStartTime, setFocusStartTime] = useState(null);
 
   // Welcome & clock
   useEffect(() => {
@@ -136,18 +140,29 @@ const HomePage = () => {
     setWidgets((prev) => prev.map(w => w.type === type ? { ...w, visible: false } : w));
   };
 
-  const handleAddTask = (e) => {
+  const handleAddTask = async (e) => {
     e.preventDefault();
     if (!newTask.trim()) return;
-    
-    const newTaskItem = {
-      id: Date.now(),
-      text: newTask.trim(),
-      completed: false
-    };
-    
-    setTasks(prevTasks => [...prevTasks, newTaskItem]);
-    setNewTask('');
+
+    // Örnek userId ve date (giriş yapan kullanıcıya göre dinamik olmalı)
+    const userId = 1; // TODO: Giriş yapan kullanıcıdan al
+    const today = new Date();
+    // DateOnly formatı için yyyy-MM-dd stringi oluştur
+    const dateOnly = today.toISOString().split('T')[0];
+
+    try {
+      const response = await axios.post('https://localhost:7255/api/DailyTasks', {
+        userId,
+        title: newTask.trim(),
+        isCompleted: false,
+        date: dateOnly
+      });
+      setTasks(prev => [...prev, response.data]);
+      setNewTask('');
+    } catch (err) {
+      alert('Görev eklenirken hata oluştu!');
+      console.error(err);
+    }
   };
 
   const toggleTask = (taskId) => {
@@ -161,6 +176,29 @@ const HomePage = () => {
   const deleteTask = (taskId) => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
   };
+
+  // Timer başlat/durdur fonksiyonları
+  const handleFocusStart = () => {
+    setTimerRunning(true);
+    setFocusStartTime(Date.now());
+  };
+  const handleFocusStop = () => {
+    setTimerRunning(false);
+    if (focusStartTime) {
+      const elapsed = Math.floor((Date.now() - focusStartTime) / 1000);
+      setFocusTotalSeconds(total => total + elapsed);
+      setFocusStartTime(null);
+    }
+  };
+
+  function formatDuration(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    let result = '';
+    if (h > 0) result += `${h} sa `;
+    if (m > 0 || h === 0) result += `${m} dk`;
+    return result.trim();
+  }
 
   // Render
   return (
@@ -195,7 +233,7 @@ const HomePage = () => {
                       onChange={() => toggleTask(task.id)}
                       className="task-checkbox"
                     />
-                    <span className={`task-text ${task.completed ? 'completed' : ''}`}>{task.text}</span>
+                    <span className={`task-text ${task.completed ? 'completed' : ''}`}>{task.title || task.text}</span>
                     <button onClick={() => deleteTask(task.id)} className="task-delete-btn" title="Sil">
                       <TrashIcon />
                     </button>
@@ -208,7 +246,7 @@ const HomePage = () => {
         <div className="focus-mode-icon-wrapper">
           <div className="focus-mode-icon" onClick={() => setMode(mode === 'clock' ? 'timer' : 'clock')} onMouseEnter={()=>setFocusTooltip(true)} onMouseLeave={()=>setFocusTooltip(false)}>
             <FocusIcon />
-            <span className="focus-mode-count">0</span>
+            <span className="focus-mode-count">{formatDuration(focusTotalSeconds)}</span>
             {focusTooltip && <span className="focus-tooltip">focus mode</span>}
           </div>
         </div>
@@ -231,9 +269,9 @@ const HomePage = () => {
             <div className="circle-timer-time">{formatTime(timer)}</div>
             <div className="circle-timer-buttons">
               {timerRunning ? (
-                <button className="timer-btn" onClick={()=>setTimerRunning(false)}>Durdur</button>
+                <button className="timer-btn" onClick={handleFocusStop}>Durdur</button>
               ) : (
-                <button className="timer-btn" onClick={()=>setTimerRunning(true)}>Başlat</button>
+                <button className="timer-btn" onClick={handleFocusStart}>Başlat</button>
               )}
             </div>
           </div>
