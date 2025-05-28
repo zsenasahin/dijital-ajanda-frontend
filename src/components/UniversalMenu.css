@@ -1,0 +1,57 @@
+.menu-icon {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 1200;
+  background: rgba(255,255,255,0.85);
+  border-radius: 50%;
+  padding: 7px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: background 0.2s;
+}
+.menu-icon:hover {
+  background: #e6e6e6;
+}
+
+.side-menu {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 240px;
+  background: #f7f6f3;
+  box-shadow: 2px 0 16px rgba(0,0,0,0.08);
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  animation: slideInMenu 0.25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideInMenu {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+.side-menu-header {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2eaadc;
+  padding: 22px 24px 12px 24px;
+  border-bottom: 1px solid #e6e6e6;
+}
+.side-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 18px;
+}
+.side-menu li {
+  padding: 12px 28px;
+  font-size: 1.08rem;
+  color: #222;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.side-menu li:hover {
+  background: #2eaadc;
+  color: #fff;
+} 

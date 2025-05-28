@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UniversalMenu from '../components/UniversalMenu';
 import '../styles/HomePage.css';
 
 const LogoutIcon = () => (
@@ -45,6 +46,11 @@ const ChronoIcon = () => (
 
 const TIMER_DEFAULT = 25 * 60; // 25:00
 
+const initialWidgets = [
+  { id: 'clock', type: 'clock', visible: true },
+  { id: 'goals', type: 'goals', visible: false }, // örnek: ilk başta gizli
+];
+
 const HomePage = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [currentTime, setCurrentTime] = useState('');
@@ -56,6 +62,8 @@ const HomePage = () => {
   const navigate = useNavigate();
   const timerRef = useRef();
   const chronoRef = useRef();
+  const [widgets, setWidgets] = useState(initialWidgets);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Welcome & clock
   useEffect(() => {
@@ -101,16 +109,25 @@ const HomePage = () => {
   const [focusTooltip, setFocusTooltip] = useState(false);
   const [modeTooltip, setModeTooltip] = useState(false);
 
+  // Widget'ı ana sayfada göster/gizle
+  const showWidget = (type) => {
+    setWidgets((prev) => prev.map(w => w.type === type ? { ...w, visible: true } : w));
+  };
+  const hideWidget = (type) => {
+    setWidgets((prev) => prev.map(w => w.type === type ? { ...w, visible: false } : w));
+  };
+
   // Render
   return (
     <div className="home-container">
+      {/* Sol üst universal menü */}
+      <UniversalMenu />
       {/* Sağ üst focus simgesi */}
       <div className="focus-mode-icon" onClick={() => setMode(mode === 'clock' ? 'timer' : 'clock')} onMouseEnter={()=>setFocusTooltip(true)} onMouseLeave={()=>setFocusTooltip(false)}>
         <FocusIcon />
         <span className="focus-mode-count">0</span>
         {focusTooltip && <span className="focus-tooltip">focus mode</span>}
       </div>
-
       {/* Ortadaki ana alan */}
       <div className="center-content">
         {mode === 'clock' && (
@@ -153,7 +170,6 @@ const HomePage = () => {
           </div>
         )}
       </div>
-
       {/* Sağ alt çıkış butonu */}
       <button className="logout-button" onClick={()=>navigate('/')}> <LogoutIcon /> </button>
     </div>
