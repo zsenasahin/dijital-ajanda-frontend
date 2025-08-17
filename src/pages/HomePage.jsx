@@ -65,7 +65,12 @@ const TIMER_DEFAULT = 25 * 60; // 25:00
 
 const initialWidgets = [
   { id: 'clock', type: 'clock', visible: true },
-  { id: 'goals', type: 'goals', visible: false }, // örnek: ilk başta gizli
+  { id: 'goals', type: 'goals', visible: false },
+  { id: 'dashboard', type: 'dashboard', visible: false },
+  { id: 'books', type: 'books', visible: false },
+  { id: 'journal', type: 'journal', visible: false },
+  { id: 'projects', type: 'projects', visible: false },
+  { id: 'kanban', type: 'kanban', visible: false },
 ];
 
 const HomePage = () => {
@@ -144,7 +149,7 @@ const HomePage = () => {
     e.preventDefault();
     if (!newTask.trim()) return;
 
-    // Örnek userId ve date (giriş yapan kullanıcıya göre dinamik olmalı)
+    
     const userId = 1; // TODO: Giriş yapan kullanıcıdan al
     const today = new Date();
     // DateOnly formatı için yyyy-MM-dd stringi oluştur
@@ -293,6 +298,31 @@ const HomePage = () => {
           </div>
         )}
       </div>
+      {/* Hızlı erişim butonları */}
+      <div className="quick-access-buttons">
+        <button className="quick-btn" onClick={() => navigate('/dashboard')} title="Dashboard">
+          📊
+        </button>
+        <button className="quick-btn" onClick={() => navigate('/goals')} title="Hedefler">
+          🎯
+        </button>
+        <button className="quick-btn" onClick={() => navigate('/habits')} title="Alışkanlıklar">
+          🔄
+        </button>
+        <button className="quick-btn" onClick={() => navigate('/books')} title="Kitaplar">
+          📚
+        </button>
+        <button className="quick-btn" onClick={() => navigate('/journal')} title="Günlük">
+          📝
+        </button>
+        <button className="quick-btn" onClick={() => navigate('/projects')} title="Projeler">
+          📋
+        </button>
+        <button className="quick-btn" onClick={() => navigate('/kanban')} title="Kanban">
+          📊
+        </button>
+      </div>
+      
       {/* Sağ alt çıkış butonu */}
       <button className="logout-button" onClick={()=>navigate('/')}> <LogoutIcon /> </button>
     </div>

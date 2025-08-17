@@ -2,8 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
 import axios from 'axios';
+import { 
+    FaPlus, 
+    FaEdit, 
+    FaTrash, 
+    FaCheckCircle, 
+    FaCalendarAlt,
+    FaClock,
+    FaFlag,
+    FaChartLine,
+    FaFire,
+    FaRegCalendarCheck
+} from 'react-icons/fa';
 import '../styles/Habits.css';
-import backgroundImage from '../assets/habbit-tracker-page.jpg';
 
 const MOTIVATION = 'Küçük adımlar, büyük değişimler yaratır.';
 
@@ -14,12 +25,20 @@ const Habits = () => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        startDate: '',
+        type: 'Daily',
+        category: 'Personal',
+        startDate: new Date().toISOString().split('T')[0],
         endDate: '',
-        completedDays: []
+        targetFrequency: 1,
+        frequencyUnit: 'day',
+        color: '#10b981',
+        icon: '🔄',
+        reminderTime: '',
+        tags: []
     });
     const [menuOpen, setMenuOpen] = useState(false);
-    const [showModal, setShowModal] = useState(false);
+    const [activeFilter, setActiveFilter] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
     const userId = localStorage.getItem('userId') || 1;
 
     useEffect(() => {
@@ -28,7 +47,7 @@ const Habits = () => {
 
     const loadHabits = async () => {
         try {
-            const response = await axios.get('https://localhost:7255/api/Habits');
+            const response = await axios.get(`https://localhost:7255/api/Habits/user/${userId}`);
             setHabits(response.data);
         } catch (error) {
             console.error('Error loading habits:', error);
@@ -41,18 +60,32 @@ const Habits = () => {
             setFormData({
                 title: habit.title,
                 description: habit.description || '',
-                startDate: habit.startDate.split('T')[0],
+                type: habit.type || 'Daily',
+                category: habit.category || 'Personal',
+                startDate: habit.startDate ? habit.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
                 endDate: habit.endDate ? habit.endDate.split('T')[0] : '',
-                completedDays: habit.completedDays || []
+                targetFrequency: habit.targetFrequency || 1,
+                frequencyUnit: habit.frequencyUnit || 'day',
+                color: habit.color || '#10b981',
+                icon: habit.icon || '🔄',
+                reminderTime: habit.reminderTime || '',
+                tags: habit.tags || []
             });
         } else {
             setModal({ open: true, mode: 'add', habitId: null });
             setFormData({
                 title: '',
                 description: '',
+                type: 'Daily',
+                category: 'Personal',
                 startDate: new Date().toISOString().split('T')[0],
                 endDate: '',
-                completedDays: []
+                targetFrequency: 1,
+                frequencyUnit: 'day',
+                color: '#10b981',
+                icon: '🔄',
+                reminderTime: '',
+                tags: []
             });
         }
     };
@@ -69,7 +102,8 @@ const Habits = () => {
 
         const habitData = {
             ...formData,
-            userId: userId
+            userId: userId,
+            isActive: true
         };
 
         try {
@@ -98,94 +132,399 @@ const Habits = () => {
         }
     };
 
-    const toggleDayCompletion = async (habitId, dayIndex) => {
+    const handleCompleteHabit = async (habitId) => {
         try {
-            const habit = habits.find(h => h.id === habitId);
-            const completedDays = [...(habit.completedDays || [])];
-            
-            if (completedDays.includes(dayIndex)) {
-                completedDays.splice(completedDays.indexOf(dayIndex), 1);
-            } else {
-                completedDays.push(dayIndex);
-            }
-
-            await axios.put(`https://localhost:7255/api/Habits/${habitId}`, {
-                ...habit,
-                completedDays
+            await axios.post(`https://localhost:7255/api/Habits/${habitId}/complete`, {
+                date: new Date().toISOString().split('T')[0],
+                count: 1,
+                notes: ''
             });
-            
             loadHabits();
         } catch (error) {
-            console.error('Error updating habit completion:', error);
-            alert('Alışkanlık güncellenirken bir hata oluştu');
+            console.error('Error completing habit:', error);
         }
     };
 
-    const getDaysBetweenDates = (startDate, endDate) => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        const days = [];
-        let currentDate = new Date(start);
-
-        while (currentDate <= end) {
-            days.push(new Date(currentDate));
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-
-        return days;
-    };
-
-    const handleAddHabit = async (e) => {
-        e.preventDefault();
-        if (!formData.title || !formData.startDate || !formData.endDate) return;
-        const userId = localStorage.getItem('userId') || 1;
-        try {
-            const response = await axios.post('https://localhost:7255/api/Habits', {
-                title: formData.title,
-                description: '',
-                startDate: new Date(formData.startDate),
-                endDate: new Date(formData.endDate),
-                completedDays: [],
-                userId: Number(userId)
-            });
-            setFormData({ title: '', startDate: '', endDate: '', completedDays: [] });
-            setShowModal(false);
-            setHabits(prev => [...prev, response.data]);
-        } catch (err) {
-            alert('Alışkanlık eklenirken hata oluştu!');
-            console.error(err);
+    const getCategoryColor = (category) => {
+        switch (category) {
+            case 'Personal': return '#10b981';
+            case 'Health': return '#3b82f6';
+            case 'Work': return '#f59e0b';
+            case 'Learning': return '#8b5cf6';
+            case 'Fitness': return '#ef4444';
+            case 'Mindfulness': return '#06b6d4';
+            default: return '#6b7280';
         }
     };
 
-    const toggleDay = (habitIdx, dayIdx) => {
-        setHabits(habits => habits.map((h, i) => i === habitIdx ? {
-            ...h,
-            completed: h.completedDays.map((c, j) => j === dayIdx ? !c : c)
-        } : h));
-        loadHabits();
+    const getCategoryText = (category) => {
+        switch (category) {
+            case 'Personal': return 'Kişisel';
+            case 'Health': return 'Sağlık';
+            case 'Work': return 'İş';
+            case 'Learning': return 'Öğrenme';
+            case 'Fitness': return 'Fitness';
+            case 'Mindfulness': return 'Farkındalık';
+            default: return category;
+        }
     };
+
+    const getTypeText = (type) => {
+        switch (type) {
+            case 'Daily': return 'Günlük';
+            case 'Weekly': return 'Haftalık';
+            case 'Monthly': return 'Aylık';
+            case 'Custom': return 'Özel';
+            default: return type;
+        }
+    };
+
+    const getTodayCompletions = (habit) => {
+        const today = new Date().toISOString().split('T')[0];
+        return habit.completions?.filter(c => c.date.split('T')[0] === today).length || 0;
+    };
+
+    const getStreak = (habit) => {
+        if (!habit.completions || habit.completions.length === 0) return 0;
+        
+        const sortedCompletions = habit.completions
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        let streak = 0;
+        let currentDate = new Date();
+        
+        for (let i = 0; i < 30; i++) { // Check last 30 days
+            const dateStr = currentDate.toISOString().split('T')[0];
+            const hasCompletion = sortedCompletions.some(c => c.date.split('T')[0] === dateStr);
+            
+            if (hasCompletion) {
+                streak++;
+            } else {
+                break;
+            }
+            
+            currentDate.setDate(currentDate.getDate() - 1);
+        }
+        
+        return streak;
+    };
+
+    const filteredHabits = habits.filter(habit => {
+        const matchesFilter = activeFilter === 'all' || habit.category === activeFilter;
+        const matchesSearch = habit.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            habit.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesFilter && matchesSearch;
+    });
+
+    const habitTypes = ['Daily', 'Weekly', 'Monthly', 'Custom'];
+    const habitCategories = ['Personal', 'Health', 'Work', 'Learning', 'Fitness', 'Mindfulness', 'Other'];
+    const frequencyUnits = ['day', 'week', 'month'];
 
     return (
-        <div className="habits-bg" style={{ backgroundImage: `url(${backgroundImage})` }}>
-            <div className="habits-center-box">
-                <div className="motivation-text">{MOTIVATION}</div>
-                <button className="add-habit-btn" onClick={() => setShowModal(true)}>Ekle</button>
+        <div className="habits-container">
+            <UniversalMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+            
+            <div className="habits-header">
+                <div className="habits-title">
+                    <h1>🔄 Alışkanlıklarım</h1>
+                    <p>{MOTIVATION}</p>
+                </div>
+                <button className="add-habit-btn" onClick={() => handleOpenModal()}>
+                    <FaPlus /> Yeni Alışkanlık
+                </button>
             </div>
-            {showModal && (
-                <div className="habit-modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="habit-modal" onClick={e => e.stopPropagation()}>
-                        <h2>Alışkanlık Ekle</h2>
-                        <form onSubmit={handleAddHabit}>
-                            <input type="text" placeholder="Alışkanlık adı" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
-                            <div className="habit-modal-dates">
-                                <label>Başlangıç: <input type="date" value={formData.startDate} onChange={e => setFormData({ ...formData, startDate: e.target.value })} required /></label>
-                                <label>Bitiş: <input type="date" value={formData.endDate} onChange={e => setFormData({ ...formData, endDate: e.target.value })} required /></label>
+
+            <div className="habits-stats">
+                <div className="stat-item">
+                    <span className="stat-number">{habits.length}</span>
+                    <span className="stat-label">Toplam Alışkanlık</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-number">
+                        {habits.filter(h => getTodayCompletions(h) > 0).length}
+                    </span>
+                    <span className="stat-label">Bugün Tamamlanan</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-number">
+                        {Math.max(...habits.map(h => getStreak(h)), 0)}
+                    </span>
+                    <span className="stat-label">En Uzun Seri</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-number">
+                        {habits.filter(h => h.isActive).length}
+                    </span>
+                    <span className="stat-label">Aktif</span>
+                </div>
+            </div>
+
+            <div className="habits-filters">
+                <div className="search-box">
+                    <input
+                        type="text"
+                        placeholder="Alışkanlık ara..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="filter-buttons">
+                    <button 
+                        className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
+                        onClick={() => setActiveFilter('all')}
+                    >
+                        Tümü ({habits.length})
+                    </button>
+                    {habitCategories.map(category => (
+                        <button 
+                            key={category}
+                            className={`filter-btn ${activeFilter === category ? 'active' : ''}`}
+                            onClick={() => setActiveFilter(category)}
+                        >
+                            {getCategoryText(category)} ({habits.filter(h => h.category === category).length})
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="habits-grid">
+                {filteredHabits.map(habit => (
+                    <div key={habit.id} className="habit-card">
+                        <div className="habit-header">
+                            <div className="habit-icon" style={{ backgroundColor: habit.color }}>
+                                {habit.icon}
                             </div>
-                            <div className="habit-modal-actions">
-                                <button type="button" onClick={() => setShowModal(false)}>İptal</button>
-                                <button type="submit">Ekle</button>
+                            <div className="habit-actions">
+                                <button
+                                    className="habit-action-btn"
+                                    onClick={() => handleOpenModal(habit)}
+                                >
+                                    <FaEdit />
+                                </button>
+                                <button
+                                    className="habit-action-btn delete"
+                                    onClick={() => handleDelete(habit.id)}
+                                >
+                                    <FaTrash />
+                                </button>
                             </div>
-                        </form>
+                        </div>
+                        
+                        <div className="habit-content">
+                            <h3 className="habit-title">{habit.title}</h3>
+                            {habit.description && (
+                                <p className="habit-description">{habit.description}</p>
+                            )}
+                            
+                            <div className="habit-meta">
+                                <div className="habit-type">
+                                    <FaClock />
+                                    <span>{getTypeText(habit.type)}</span>
+                                </div>
+                                <div className="habit-category">
+                                    <FaFlag style={{ color: getCategoryColor(habit.category) }} />
+                                    <span>{getCategoryText(habit.category)}</span>
+                                </div>
+                                <div className="habit-frequency">
+                                    <FaRegCalendarCheck />
+                                    <span>{habit.targetFrequency}x {habit.frequencyUnit === 'day' ? 'gün' : habit.frequencyUnit === 'week' ? 'hafta' : 'ay'}</span>
+                                </div>
+                            </div>
+                            
+                            <div className="habit-progress">
+                                <div className="progress-header">
+                                    <span>Bugün</span>
+                                    <span>{getTodayCompletions(habit)} / {habit.targetFrequency}</span>
+                                </div>
+                                <div className="progress-bar">
+                                    <div 
+                                        className="progress-fill" 
+                                        style={{ 
+                                            width: `${Math.min(100, (getTodayCompletions(habit) / habit.targetFrequency) * 100)}%`,
+                                            backgroundColor: getTodayCompletions(habit) >= habit.targetFrequency ? '#10b981' : '#f59e0b'
+                                        }}
+                                    ></div>
+                                </div>
+                            </div>
+                            
+                            <div className="habit-stats">
+                                <div className="stat">
+                                    <FaFire style={{ color: '#f59e0b' }} />
+                                    <span>{getStreak(habit)} gün seri</span>
+                                </div>
+                                <div className="stat">
+                                    <FaChartLine style={{ color: '#3b82f6' }} />
+                                    <span>{habit.completions?.length || 0} toplam</span>
+                                </div>
+                            </div>
+                            
+                            <div className="habit-actions">
+                                {getTodayCompletions(habit) < habit.targetFrequency ? (
+                                    <button 
+                                        className="action-btn primary"
+                                        onClick={() => handleCompleteHabit(habit.id)}
+                                    >
+                                        <FaCheckCircle /> Tamamla
+                                    </button>
+                                ) : (
+                                    <button className="action-btn success" disabled>
+                                        <FaCheckCircle /> Bugün Tamamlandı
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {filteredHabits.length === 0 && (
+                <div className="empty-state">
+                    <div className="empty-icon">🔄</div>
+                    <h3>Henüz alışkanlık eklenmemiş</h3>
+                    <p>İlk alışkanlığınızı ekleyerek değişim yolculuğunuza başlayın!</p>
+                    <button onClick={() => handleOpenModal()}>İlk Alışkanlığını Ekle</button>
+                </div>
+            )}
+
+            {/* Modal */}
+            {modal.open && (
+                <div className="habits-modal-overlay" onClick={handleCloseModal}>
+                    <div className="habits-modal" onClick={e => e.stopPropagation()}>
+                        <h2>{modal.mode === 'add' ? 'Yeni Alışkanlık' : 'Alışkanlığı Düzenle'}</h2>
+                        
+                        <div className="form-group">
+                            <label>Alışkanlık Adı *</label>
+                            <input
+                                type="text"
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                placeholder="Alışkanlık adı"
+                                required
+                            />
+                        </div>
+                        
+                        <div className="form-group">
+                            <label>Açıklama</label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                placeholder="Alışkanlık açıklaması"
+                                rows="3"
+                            />
+                        </div>
+                        
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Tip</label>
+                                <select
+                                    value={formData.type}
+                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                >
+                                    {habitTypes.map(type => (
+                                        <option key={type} value={type}>{getTypeText(type)}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Kategori</label>
+                                <select
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                >
+                                    {habitCategories.map(category => (
+                                        <option key={category} value={category}>{getCategoryText(category)}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Başlangıç Tarihi</label>
+                                <input
+                                    type="date"
+                                    value={formData.startDate}
+                                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Bitiş Tarihi (Opsiyonel)</label>
+                                <input
+                                    type="date"
+                                    value={formData.endDate}
+                                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Hedef Sıklık</label>
+                                <input
+                                    type="number"
+                                    value={formData.targetFrequency}
+                                    onChange={(e) => setFormData({ ...formData, targetFrequency: parseInt(e.target.value) })}
+                                    placeholder="1"
+                                    min="1"
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Frekans Birimi</label>
+                                <select
+                                    value={formData.frequencyUnit}
+                                    onChange={(e) => setFormData({ ...formData, frequencyUnit: e.target.value })}
+                                >
+                                    {frequencyUnits.map(unit => (
+                                        <option key={unit} value={unit}>
+                                            {unit === 'day' ? 'Gün' : unit === 'week' ? 'Hafta' : 'Ay'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Renk</label>
+                                <input
+                                    type="color"
+                                    value={formData.color}
+                                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>İkon</label>
+                                <input
+                                    type="text"
+                                    value={formData.icon}
+                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                                    placeholder="🔄"
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="form-group">
+                            <label>Hatırlatma Saati (HH:MM)</label>
+                            <input
+                                type="time"
+                                value={formData.reminderTime}
+                                onChange={(e) => setFormData({ ...formData, reminderTime: e.target.value })}
+                                placeholder="09:00"
+                            />
+                        </div>
+                        
+                        <div className="modal-actions">
+                            <button className="btn-secondary" onClick={handleCloseModal}>
+                                İptal
+                            </button>
+                            <button className="btn-primary" onClick={handleSubmit}>
+                                {modal.mode === 'add' ? 'Oluştur' : 'Güncelle'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
