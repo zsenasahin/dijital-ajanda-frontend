@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
-import axios from 'axios';
+import api from '../services/api';
 import {
   DndContext,
   closestCenter,
@@ -139,7 +139,7 @@ const KanbanBoard = () => {
         assignee: ''
     });
     const [menuOpen, setMenuOpen] = useState(false);
-    const userId = localStorage.getItem('userId') || 1;
+    const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     const sensors = useSensors(
       useSensor(PointerSensor),
@@ -182,8 +182,8 @@ const KanbanBoard = () => {
     const loadData = async () => {
         try {
             const [tasksResponse, projectsResponse] = await Promise.all([
-                axios.get(`https://localhost:7255/api/Tasks/user/${userId}`),
-                axios.get(`https://localhost:7255/api/Projects/user/${userId}`)
+                api.get(`/api/Tasks/user/${userId}`),
+                api.get(`/api/Projects/user/${userId}`)
             ]);
 
             setTasks(tasksResponse.data);
@@ -221,7 +221,7 @@ const KanbanBoard = () => {
                          targetColumn === 'review' ? 'Review' : 'Done';
 
         try {
-            await axios.put(`https://localhost:7255/api/Tasks/${active.id}/status`, {
+            await api.put(`/api/Tasks/${active.id}/status`, {
                 status: newStatus
             });
 
@@ -277,18 +277,18 @@ const KanbanBoard = () => {
             ...formData,
             userId: userId,
             status: 'Todo',
-            estimatedHours: formData.estimatedHours ? parseInt(formData.estimatedHours) : null,
-            dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null
+            estimatedHours: formData.estimatedHours !== '' ? parseInt(formData.estimatedHours) : null,
+            dueDate: formData.dueDate ? formData.dueDate : null
         };
 
         try {
             if (modal.mode === 'add') {
-                await axios.post('https://localhost:7255/api/Tasks', taskData);
+                await api.post('/api/Tasks', taskData);
             } else {
-                await axios.put(`https://localhost:7255/api/Tasks/${modal.taskId}`, taskData);
+                await api.put(`/api/Tasks/${modal.taskId}`, taskData);
             }
             handleCloseModal();
-            loadData();
+            await loadData();
         } catch (error) {
             console.error('Error saving task:', error);
             alert('Görev kaydedilirken bir hata oluştu');
@@ -298,7 +298,7 @@ const KanbanBoard = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Bu görevi silmek istediğinizden emin misiniz?')) {
             try {
-                await axios.delete(`https://localhost:7255/api/Tasks/${id}`);
+                await api.delete(`/api/Tasks/${id}`);
                 loadData();
             } catch (error) {
                 console.error('Error deleting task:', error);

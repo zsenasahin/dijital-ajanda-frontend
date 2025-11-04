@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -10,18 +10,18 @@ const Register = () => {
     e.preventDefault();
 
     const userData = {
-      username,
+      userName: username,
       email,
       password
     };
 
     try {
-      const response = await axios.post('https://localhost:7255/api/auth/register', userData);
+      const response = await api.post('/api/auth/register', userData);
       console.log('User registered:', response.data);
       // Başarılı kayıt sonrası yönlendirme yapabilir ya da kullanıcıyı bilgilendirebilirsin
     } catch (error) {
       console.error('There was an error registering the user!', error);
-      // Hata durumunda kullanıcıyı bilgilendirebilirsin
+      // Hata durumunda kullanıcıyı bilgilendirebilirsin 
     }
   };
 

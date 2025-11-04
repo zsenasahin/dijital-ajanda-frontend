@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
-import axios from 'axios';
+import api from '../services/api';
 import { 
     FaPlus, 
     FaEdit, 
@@ -33,7 +33,7 @@ const Projects = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    const userId = localStorage.getItem('userId') || 1;
+    const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     useEffect(() => {
         loadProjects();
@@ -41,7 +41,7 @@ const Projects = () => {
 
     const loadProjects = async () => {
         try {
-            const response = await axios.get(`https://localhost:7255/api/Projects/user/${userId}`);
+            const response = await api.get(`/api/Projects/user/${userId}`);
             setProjects(response.data);
         } catch (error) {
             console.error('Error loading projects:', error);
@@ -93,18 +93,19 @@ const Projects = () => {
         const projectData = {
             ...formData,
             userId: userId,
-            startDate: new Date(formData.startDate),
-            endDate: formData.endDate ? new Date(formData.endDate) : null
+            startDate: formData.startDate || new Date().toISOString().split('T')[0],
+            endDate: formData.endDate ? formData.endDate : null,
+            progress: parseInt(formData.progress)
         };
 
         try {
             if (modal.mode === 'add') {
-                await axios.post('https://localhost:7255/api/Projects', projectData);
+                await api.post('/api/Projects', projectData);
             } else {
-                await axios.put(`https://localhost:7255/api/Projects/${modal.projectId}`, projectData);
+                await api.put(`/api/Projects/${modal.projectId}`, projectData);
             }
             handleCloseModal();
-            loadProjects();
+            await loadProjects();
         } catch (error) {
             console.error('Error saving project:', error);
             alert('Proje kaydedilirken bir hata oluştu');
@@ -114,7 +115,7 @@ const Projects = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Bu projeyi silmek istediğinizden emin misiniz?')) {
             try {
-                await axios.delete(`https://localhost:7255/api/Projects/${id}`);
+                await api.delete(`/api/Projects/${id}`);
                 loadProjects();
             } catch (error) {
                 console.error('Error deleting project:', error);

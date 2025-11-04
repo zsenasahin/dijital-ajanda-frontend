@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
-import axios from 'axios';
+import api from '../services/api';
 import '../styles/Dashboard.css';
 import { 
     FaBullseye, 
@@ -35,17 +35,17 @@ const Dashboard = () => {
     const loadDashboardData = async () => {
         try {
             // Load goals
-            const goalsResponse = await axios.get(`https://localhost:7255/api/Goals/user/${userId}`);
+            const goalsResponse = await api.get(`/api/Goals/user/${userId}`);
             const goals = goalsResponse.data;
             setRecentGoals(goals.slice(0, 3));
             
             // Load habits
-            const habitsResponse = await axios.get(`https://localhost:7255/api/Habits/user/${userId}`);
+            const habitsResponse = await api.get(`/api/Habits/user/${userId}`);
             const habits = habitsResponse.data;
             setRecentHabits(habits.slice(0, 3));
             
             // Load books
-            const booksResponse = await axios.get(`https://localhost:7255/api/Books/user/${userId}`);
+            const booksResponse = await api.get(`/api/Books/user/${userId}`);
             const books = booksResponse.data;
             setRecentBooks(books.slice(0, 3));
 

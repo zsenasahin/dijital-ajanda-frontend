@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
-import axios from 'axios';
+import api from '../services/api';
 import { 
     FaPlus, 
     FaEdit, 
@@ -33,13 +33,12 @@ const Habits = () => {
         frequencyUnit: 'day',
         color: '#10b981',
         icon: '🔄',
-        reminderTime: '',
-        tags: []
+        reminderTime: ''
     });
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    const userId = localStorage.getItem('userId') || 1;
+    const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     useEffect(() => {
         loadHabits();
@@ -47,7 +46,7 @@ const Habits = () => {
 
     const loadHabits = async () => {
         try {
-            const response = await axios.get(`https://localhost:7255/api/Habits/user/${userId}`);
+            const response = await api.get(`/api/Habits/user/${userId}`);
             setHabits(response.data);
         } catch (error) {
             console.error('Error loading habits:', error);
@@ -68,8 +67,7 @@ const Habits = () => {
                 frequencyUnit: habit.frequencyUnit || 'day',
                 color: habit.color || '#10b981',
                 icon: habit.icon || '🔄',
-                reminderTime: habit.reminderTime || '',
-                tags: habit.tags || []
+                reminderTime: habit.reminderTime || ''
             });
         } else {
             setModal({ open: true, mode: 'add', habitId: null });
@@ -84,8 +82,7 @@ const Habits = () => {
                 frequencyUnit: 'day',
                 color: '#10b981',
                 icon: '🔄',
-                reminderTime: '',
-                tags: []
+                reminderTime: ''
             });
         }
     };
@@ -103,14 +100,17 @@ const Habits = () => {
         const habitData = {
             ...formData,
             userId: userId,
-            isActive: true
+            isActive: true,
+            startDate: formData.startDate || new Date().toISOString().split('T')[0],
+            endDate: formData.endDate ? formData.endDate : null,
+            targetFrequency: parseInt(formData.targetFrequency)
         };
 
         try {
             if (modal.mode === 'add') {
-                await axios.post('https://localhost:7255/api/Habits', habitData);
+                await api.post('/api/Habits', habitData);
             } else {
-                await axios.put(`https://localhost:7255/api/Habits/${modal.habitId}`, habitData);
+                await api.put(`/api/Habits/${modal.habitId}`, habitData);
             }
             handleCloseModal();
             loadHabits();
@@ -123,7 +123,7 @@ const Habits = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Bu alışkanlığı silmek istediğinizden emin misiniz?')) {
             try {
-                await axios.delete(`https://localhost:7255/api/Habits/${id}`);
+                await api.delete(`/api/Habits/${id}`);
                 loadHabits();
             } catch (error) {
                 console.error('Error deleting habit:', error);
@@ -134,7 +134,7 @@ const Habits = () => {
 
     const handleCompleteHabit = async (habitId) => {
         try {
-            await axios.post(`https://localhost:7255/api/Habits/${habitId}/complete`, {
+            await api.post(`/api/Habits/${habitId}/complete`, {
                 date: new Date().toISOString().split('T')[0],
                 count: 1,
                 notes: ''
@@ -181,21 +181,21 @@ const Habits = () => {
 
     const getTodayCompletions = (habit) => {
         const today = new Date().toISOString().split('T')[0];
-        return habit.completions?.filter(c => c.date.split('T')[0] === today).length || 0;
+        return habit.completions?.filter(c => (c.completedAt || c.date || '').split('T')[0] === today).length || 0;
     };
 
     const getStreak = (habit) => {
         if (!habit.completions || habit.completions.length === 0) return 0;
         
         const sortedCompletions = habit.completions
-            .sort((a, b) => new Date(b.date) - new Date(a.date));
+            .sort((a, b) => new Date(b.completedAt || b.date) - new Date(a.completedAt || a.date));
         
         let streak = 0;
         let currentDate = new Date();
         
         for (let i = 0; i < 30; i++) { // Check last 30 days
             const dateStr = currentDate.toISOString().split('T')[0];
-            const hasCompletion = sortedCompletions.some(c => c.date.split('T')[0] === dateStr);
+            const hasCompletion = sortedCompletions.some(c => (c.completedAt || c.date || '').split('T')[0] === dateStr);
             
             if (hasCompletion) {
                 streak++;

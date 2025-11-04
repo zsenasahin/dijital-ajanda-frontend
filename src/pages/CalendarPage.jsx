@@ -13,7 +13,7 @@ import addWeeks from 'date-fns/addWeeks';
 import subWeeks from 'date-fns/subWeeks';
 import isSameDay from 'date-fns/isSameDay';
 import isSameMonth from 'date-fns/isSameMonth';
-import axios from 'axios';
+import api from '../services/api';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/CalendarPage.css';
 
@@ -96,7 +96,7 @@ const CalendarPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('https://localhost:7255/api/Events');
+        const response = await api.get('/api/Events');
         const formattedEvents = response.data.map(event => ({
           ...event,
           start: new Date(event.start),
@@ -161,7 +161,7 @@ const CalendarPage = () => {
     };
 
     try {
-      const response = await axios.post('https://localhost:7255/api/Events', newEvent);
+      const response = await api.post('/api/Events', newEvent);
       const formattedEvent = {
         ...response.data,
         start: new Date(response.data.start),
@@ -189,7 +189,7 @@ const CalendarPage = () => {
     };
 
     try {
-      await axios.put(`https://localhost:7255/api/Events/${updatedEvent.id}`, updatedEvent);
+      await api.put(`/api/Events/${updatedEvent.id}`, updatedEvent);
       const updated = [...events];
       updated[modal.eventIdx] = updatedEvent;
       setEvents(updated);
@@ -206,7 +206,7 @@ const CalendarPage = () => {
     const eventToDelete = events[modal.eventIdx];
 
     try {
-      await axios.delete(`https://localhost:7255/api/Events/${eventToDelete.id}`);
+      await api.delete(`/api/Events/${eventToDelete.id}`);
       setEvents(events.filter((_, i) => i !== modal.eventIdx));
       setModal({ open: false, mode: 'add', eventIdx: null, start: null, end: null });
     } catch (error) {

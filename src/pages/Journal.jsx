@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
-import axios from 'axios';
+import api from '../services/api';
 import { 
     FaPlus, 
     FaEdit, 
@@ -31,7 +31,7 @@ const Journal = () => {
     });
     const [menuOpen, setMenuOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-    const userId = localStorage.getItem('userId') || 1;
+    const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     const moods = ['😊', '😢', '😡', '😴', '😐', '🤔', '😍', '😤', '🥳', '😌'];
     const weatherOptions = ['☀️ Güneşli', '🌤️ Parçalı Bulutlu', '☁️ Bulutlu', '🌧️ Yağmurlu', '⛈️ Fırtınalı', '❄️ Karlı', '🌫️ Sisli'];
@@ -42,7 +42,7 @@ const Journal = () => {
 
     const loadEntries = async () => {
         try {
-            const response = await axios.get(`https://localhost:7255/api/Journal/user/${userId}`);
+            const response = await api.get(`/api/Journal/user/${userId}`);
             setEntries(response.data);
         } catch (error) {
             console.error('Error loading entries:', error);
@@ -97,9 +97,9 @@ const Journal = () => {
 
         try {
             if (modal.mode === 'add') {
-                await axios.post('https://localhost:7255/api/Journal', entryData);
+                await api.post('/api/Journal', entryData);
             } else {
-                await axios.put(`https://localhost:7255/api/Journal/${modal.entryId}`, entryData);
+                await api.put(`/api/Journal/${modal.entryId}`, entryData);
             }
             handleCloseModal();
             loadEntries();
@@ -112,7 +112,7 @@ const Journal = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Bu günlük girişini silmek istediğinizden emin misiniz?')) {
             try {
-                await axios.delete(`https://localhost:7255/api/Journal/${id}`);
+                await api.delete(`/api/Journal/${id}`);
                 loadEntries();
             } catch (error) {
                 console.error('Error deleting entry:', error);

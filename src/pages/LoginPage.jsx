@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import '../styles/LoginPage.css';
 
 const EyeIcon = ({ visible }) => (
@@ -41,12 +41,23 @@ const LoginPage = () => {
     console.log('Form submitted');
 
     if (isLogin) {
-      // Login logic will be implemented here
-      navigate('/home');
+      try {
+        const response = await api.post('/api/auth/login', { email, password });
+        const { userId, userName } = response.data || {};
+        if (userId) {
+          localStorage.setItem('userId', String(userId));
+          localStorage.setItem('userName', userName || '');
+          navigate('/home');
+        } else {
+          alert('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
+        }
+      } catch (err) {
+        alert('Giriş sırasında hata oluştu: ' + (err.response?.data || err.message));
+      }
     } else {
       // Register logic
       const userData = {
-        username: userName,
+        userName: userName,
         email: email,
         password: password
       };
@@ -54,7 +65,7 @@ const LoginPage = () => {
       console.log('Sending register request with data:', userData);
 
       try {
-        const response = await axios.post('https://localhost:7255/api/auth/register', userData);
+        const response = await api.post('/api/auth/register', userData);
         console.log('Register response:', response);
         
         if (response.data) {

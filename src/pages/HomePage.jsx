@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
 import '../styles/HomePage.css';
-import axios from 'axios';
+import api from '../services/api';
 
 const LogoutIcon = () => (
   <svg
@@ -156,7 +156,7 @@ const HomePage = () => {
     const dateOnly = today.toISOString().split('T')[0];
 
     try {
-      const response = await axios.post('https://localhost:7255/api/DailyTasks', {
+      const response = await api.post('/api/DailyTasks', {
         userId,
         title: newTask.trim(),
         isCompleted: false,

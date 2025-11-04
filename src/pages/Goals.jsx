@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
-import axios from 'axios';
+import api from '../services/api';
 import { 
     FaPlus, 
     FaEdit, 
@@ -35,7 +35,7 @@ const Goals = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    const userId = localStorage.getItem('userId') || 1;
+    const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     useEffect(() => {
         loadGoals();
@@ -43,7 +43,7 @@ const Goals = () => {
 
     const loadGoals = async () => {
         try {
-            const response = await axios.get(`https://localhost:7255/api/Goals/user/${userId}`);
+            const response = await api.get(`/api/Goals/user/${userId}`);
             setGoals(response.data);
         } catch (error) {
             console.error('Error loading goals:', error);
@@ -100,17 +100,22 @@ const Goals = () => {
             status: 'NotStarted',
             currentValue: 0,
             isCompleted: false,
-            targetValue: formData.targetValue ? parseFloat(formData.targetValue) : null
+            targetValue: formData.targetValue !== '' && formData.targetValue !== null
+                ? parseFloat(String(formData.targetValue).replace(',', '.'))
+                : null,
+            // Tarihleri ISO'ya çevirmek yerine input'un verdiği yyyy-MM-dd stringini gönderiyoruz
+            startDate: formData.startDate || new Date().toISOString().split('T')[0],
+            endDate: formData.endDate ? formData.endDate : null
         };
 
         try {
             if (modal.mode === 'add') {
-                await axios.post('https://localhost:7255/api/Goals', goalData);
+                await api.post('/api/Goals', goalData);
             } else {
-                await axios.put(`https://localhost:7255/api/Goals/${modal.taskId}`, goalData);
+                await api.put(`/api/Goals/${modal.goalId}`, goalData);
             }
             handleCloseModal();
-            loadGoals();
+            await loadGoals();
         } catch (error) {
             console.error('Error saving goal:', error);
             alert('Hedef kaydedilirken bir hata oluştu');
@@ -120,7 +125,7 @@ const Goals = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Bu hedefi silmek istediğinizden emin misiniz?')) {
             try {
-                await axios.delete(`https://localhost:7255/api/Goals/${id}`);
+                await api.delete(`/api/Goals/${id}`);
                 loadGoals();
             } catch (error) {
                 console.error('Error deleting goal:', error);
@@ -131,7 +136,7 @@ const Goals = () => {
 
     const handleProgressUpdate = async (goalId, newValue) => {
         try {
-            await axios.put(`https://localhost:7255/api/Goals/${goalId}/progress`, {
+            await api.put(`/api/Goals/${goalId}/progress`, {
                 currentValue: newValue
             });
             loadGoals();
@@ -142,7 +147,7 @@ const Goals = () => {
 
     const handleStatusChange = async (goalId, newStatus) => {
         try {
-            await axios.put(`https://localhost:7255/api/Goals/${goalId}`, {
+            await api.put(`/api/Goals/${goalId}`, {
                 status: newStatus,
                 isCompleted: newStatus === 'Completed'
             });

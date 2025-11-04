@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import UniversalMenu from '../components/UniversalMenu';
-import axios from 'axios';
+import api from '../services/api';
 import { 
     FaPlus, 
     FaEdit, 
@@ -31,7 +31,7 @@ const Books = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    const userId = localStorage.getItem('userId') || 1;
+    const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     useEffect(() => {
         loadBooks();
@@ -39,7 +39,7 @@ const Books = () => {
 
     const loadBooks = async () => {
         try {
-            const response = await axios.get(`https://localhost:7255/api/Books/user/${userId}`);
+            const response = await api.get(`/api/Books/user/${userId}`);
             setBooks(response.data);
         } catch (error) {
             console.error('Error loading books:', error);
@@ -93,19 +93,19 @@ const Books = () => {
         const bookData = {
             ...formData,
             userId: userId,
-            totalPages: formData.totalPages ? parseInt(formData.totalPages) : null,
-            currentPage: formData.currentPage ? parseInt(formData.currentPage) : null,
+            totalPages: formData.totalPages !== '' ? parseInt(formData.totalPages) : null,
+            currentPage: formData.currentPage !== '' ? parseInt(formData.currentPage) : null,
             rating: parseInt(formData.rating)
         };
 
         try {
             if (modal.mode === 'add') {
-                await axios.post('https://localhost:7255/api/Books', bookData);
+                await api.post('/api/Books', bookData);
             } else {
-                await axios.put(`https://localhost:7255/api/Books/${modal.bookId}`, bookData);
+                await api.put(`/api/Books/${modal.bookId}`, bookData);
             }
             handleCloseModal();
-            loadBooks();
+            await loadBooks();
         } catch (error) {
             console.error('Error saving book:', error);
             alert('Kitap kaydedilirken bir hata oluştu');
@@ -115,7 +115,7 @@ const Books = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Bu kitabı silmek istediğinizden emin misiniz?')) {
             try {
-                await axios.delete(`https://localhost:7255/api/Books/${id}`);
+                await api.delete(`/api/Books/${id}`);
                 loadBooks();
             } catch (error) {
                 console.error('Error deleting book:', error);
@@ -126,7 +126,7 @@ const Books = () => {
 
     const handleStatusChange = async (bookId, newStatus) => {
         try {
-            await axios.put(`https://localhost:7255/api/Books/${bookId}/status`, {
+            await api.put(`/api/Books/${bookId}/status`, {
                 status: newStatus
             });
             loadBooks();
@@ -137,7 +137,7 @@ const Books = () => {
 
     const handleProgressUpdate = async (bookId, currentPage) => {
         try {
-            await axios.put(`https://localhost:7255/api/Books/${bookId}/progress`, {
+            await api.put(`/api/Books/${bookId}/progress`, {
                 currentPage: currentPage
             });
             loadBooks();
