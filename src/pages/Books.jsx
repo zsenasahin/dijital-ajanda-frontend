@@ -93,9 +93,20 @@ const Books = () => {
         const bookData = {
             ...formData,
             userId: userId,
-            totalPages: formData.totalPages !== '' ? parseInt(formData.totalPages) : null,
-            currentPage: formData.currentPage !== '' ? parseInt(formData.currentPage) : null,
-            rating: parseInt(formData.rating)
+            status: formData.status || 'ToRead',
+            totalPages: formData.totalPages !== '' && formData.totalPages !== null
+                ? parseInt(formData.totalPages)
+                : null,
+            currentPage: formData.currentPage !== '' && formData.currentPage !== null
+                ? parseInt(formData.currentPage)
+                : null,
+            rating: parseInt(formData.rating) || 0,
+            tags: formData.tags && Array.isArray(formData.tags) ? formData.tags : [],
+            author: formData.author || null,
+            isbn: formData.isbn || null,
+            description: formData.description || null,
+            review: formData.review || null,
+            coverImage: formData.coverImage || null
         };
 
         try {
@@ -249,14 +260,18 @@ const Books = () => {
                                     <FaBook />
                                 </div>
                             )}
-                            <div className="book-status-badge" style={{ backgroundColor: getStatusColor(book.status) }}>
-                                {getStatusText(book.status)}
-                            </div>
                         </div>
                         
                         <div className="book-content">
-                            <h3 className="book-title">{book.title}</h3>
-                            <p className="book-author">{book.author}</p>
+                            <div className="book-header">
+                                <h3 className="book-title">{book.title}</h3>
+                                <div className="book-status-badge" style={{ backgroundColor: getStatusColor(book.status) }}>
+                                    {getStatusText(book.status)}
+                                </div>
+                            </div>
+                            {book.author && (
+                                <p className="book-author">{book.author}</p>
+                            )}
                             
                             {book.description && (
                                 <p className="book-description">{book.description}</p>
@@ -265,7 +280,7 @@ const Books = () => {
                             <div className="book-meta">
                                 {book.totalPages && (
                                     <span className="book-pages">
-                                        <FaBook /> {book.totalPages} sayfa
+                                        <FaBook /> Toplam: {book.totalPages} sayfa
                                     </span>
                                 )}
                                 
@@ -285,7 +300,15 @@ const Books = () => {
                                         ></div>
                                     </div>
                                     <span className="progress-text">
-                                        {book.currentPage || 0} / {book.totalPages} sayfa
+                                        Okunan: {book.currentPage || 0} / {book.totalPages} sayfa
+                                    </span>
+                                </div>
+                            )}
+                            
+                            {book.status !== 'CurrentlyReading' && book.totalPages && (
+                                <div className="book-total-pages">
+                                    <span className="progress-text">
+                                        Toplam: {book.totalPages} sayfa
                                     </span>
                                 </div>
                             )}

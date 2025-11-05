@@ -1,8 +1,31 @@
 .books-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-image: url('../assets/books-background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     padding: 2rem;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    position: relative;
+}
+
+.books-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 0;
+}
+
+.books-header,
+.books-filters,
+.books-grid,
+.empty-state {
+    position: relative;
+    z-index: 1;
 }
 
 .books-header {
@@ -117,36 +140,46 @@
 
 .books-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
 .book-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
+    background: white;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
 .book-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.06);
+    border-color: #d1d5db;
 }
 
 .book-cover {
     position: relative;
+    width: 100%;
     height: 200px;
     overflow: hidden;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .book-cover img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    display: block;
+    background: transparent;
 }
 
 .book-placeholder {
@@ -157,48 +190,62 @@
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 3rem;
-}
-
-.book-status-badge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 2.5rem;
 }
 
 .book-content {
-    padding: 1.5rem;
+    padding: 1rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.book-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
 }
 
 .book-title {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: #111827;
-    margin: 0 0 0.5rem 0;
-    line-height: 1.4;
+    margin: 0;
+    line-height: 1.3;
+    flex: 1;
+}
+
+.book-status-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
 }
 
 .book-author {
-    font-size: 1rem;
+    font-size: 0.875rem;
     color: #6b7280;
-    margin: 0 0 1rem 0;
-    font-weight: 500;
+    margin: 0;
+    font-weight: 400;
 }
 
 .book-description {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: #6b7280;
     line-height: 1.5;
-    margin: 0 0 1rem 0;
+    margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -207,27 +254,30 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin: 0;
     flex-wrap: wrap;
     gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid #f3f4f6;
 }
 
 .book-pages {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: #6b7280;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: #4b5563;
     font-weight: 500;
 }
 
+
 .book-rating {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.2rem;
 }
 
 .star {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #d1d5db;
 }
 
@@ -236,50 +286,65 @@
 }
 
 .reading-progress {
-    margin-bottom: 1rem;
+    margin: 0;
+    padding: 0.5rem 0;
 }
 
 .progress-bar {
     width: 100%;
-    height: 8px;
+    height: 4px;
     background: #e5e7eb;
-    border-radius: 4px;
+    border-radius: 10px;
     overflow: hidden;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 4px;
-    transition: width 0.3s ease;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 10px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .progress-text {
-    font-size: 0.875rem;
-    color: #6b7280;
+    font-size: 0.75rem;
+    color: #4b5563;
     font-weight: 500;
+}
+
+.book-total-pages {
+    margin: 0;
+    padding: 0.25rem 0;
+}
+
+.book-total-pages .progress-text {
+    color: #6b7280;
+    font-size: 0.75rem;
 }
 
 .book-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f3f4f6;
 }
 
 .action-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
     border: none;
     border-radius: 8px;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     flex: 1;
     justify-content: center;
+    min-width: 0;
 }
 
 .action-btn.primary {
