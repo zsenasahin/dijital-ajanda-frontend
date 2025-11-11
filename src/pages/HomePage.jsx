@@ -128,7 +128,7 @@ const HomePage = () => {
     if (mode !== 'timer' || !timerRunning || timerPaused) return;
     timerRef.current = setInterval(() => {
       setTimer((prev) => {
-        if (prev > 0) {
+        if (prev > 0) { 
           setAccumulatedTime(prevAcc => prevAcc + 1);
           return prev - 1;
         }

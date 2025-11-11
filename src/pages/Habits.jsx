@@ -135,13 +135,15 @@ const Habits = () => {
     const handleCompleteHabit = async (habitId) => {
         try {
             await api.post(`/api/Habits/${habitId}/complete`, {
-                date: new Date().toISOString().split('T')[0],
+                date: new Date().toISOString(),
                 count: 1,
                 notes: ''
             });
-            loadHabits();
+            await loadHabits();
         } catch (error) {
             console.error('Error completing habit:', error);
+            const errorMessage = error.response?.data?.message || error.response?.data || 'Alışkanlık tamamlanırken bir hata oluştu';
+            alert(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage, null, 2));
         }
     };
 

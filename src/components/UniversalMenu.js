@@ -24,8 +24,7 @@ const UniversalMenu = () => {
           <div className="side-menu-header">Menü</div>
           <ul>
             <li onClick={() => { setMenuOpen(false); navigate('/home'); }}>Anasayfa</li>
-            <li onClick={() => { setMenuOpen(false); navigate('/goals'); }}>Backlog</li>
-            <li onClick={() => { setMenuOpen(false); navigate('/habits'); }}>Alışkanlıklar</li>
+            <li onClick={() => { setMenuOpen(false); navigate('/dashboard'); }}>Dashboard</li>
             <li onClick={() => { setMenuOpen(false); navigate('/calendar'); }}>Takvim</li>
           </ul>
         </div>

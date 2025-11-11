@@ -147,13 +147,26 @@ const Goals = () => {
 
     const handleStatusChange = async (goalId, newStatus) => {
         try {
-            await api.put(`/api/Goals/${goalId}`, {
+            // Mevcut goal'u bul
+            const goal = goals.find(g => g.id === goalId);
+            if (!goal) {
+                console.error('Goal not found');
+                return;
+            }
+
+            // Tüm alanları koruyarak sadece status'u güncelle
+            const updatedGoal = {
+                ...goal,
                 status: newStatus,
-                isCompleted: newStatus === 'Completed'
-            });
-            loadGoals();
+                isCompleted: newStatus === 'Completed',
+                completedDate: newStatus === 'Completed' ? new Date().toISOString() : null
+            };
+
+            await api.put(`/api/Goals/${goalId}`, updatedGoal);
+            await loadGoals();
         } catch (error) {
             console.error('Error updating goal status:', error);
+            alert('Hedef durumu güncellenirken bir hata oluştu');
         }
     };
 

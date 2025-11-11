@@ -27,6 +27,7 @@ const Dashboard = () => {
     const [recentBooks, setRecentBooks] = useState([]);
     const [menuOpen, setMenuOpen] = useState(false);
     const userId = localStorage.getItem('userId') || 1;
+    const userName = localStorage.getItem('userName') || '';
 
     useEffect(() => {
         loadDashboardData();
@@ -47,7 +48,7 @@ const Dashboard = () => {
             // Load books
             const booksResponse = await api.get(`/api/Books/user/${userId}`);
             const books = booksResponse.data;
-            setRecentBooks(books.slice(0, 3));
+            setRecentBooks(books.slice(0, 6));
 
             // Calculate stats
             const goalsStats = {
@@ -102,7 +103,7 @@ const Dashboard = () => {
             
             <div className="dashboard-header">
                 <div className="dashboard-greeting">
-                    <h1>{getGreeting()}, Kullanıcı! 👋</h1>
+                    <h1>{getGreeting()}, {userName || 'Kullanıcı'}! 👋</h1>
                     <p>Bugün neler yapmak istiyorsun?</p>
                 </div>
                 <div className="dashboard-date">
@@ -317,7 +318,7 @@ const Dashboard = () => {
                             <FaPlus /> Tümünü Gör
                         </button>
                     </div>
-                    <div className="section-content">
+                    <div className="section-content books-list">
                         {recentBooks.length > 0 ? (
                             recentBooks.map(book => (
                                 <div key={book.id} className="book-item" onClick={() => navigate('/books')}>
@@ -329,20 +330,6 @@ const Dashboard = () => {
                                                 <FaBook />
                                             </div>
                                         )}
-                                    </div>
-                                    <div className="book-info">
-                                        <h4>{book.title}</h4>
-                                        <p>{book.author}</p>
-                                        <div className="book-meta">
-                                            <span className={`status ${book.status?.toLowerCase()}`}>
-                                                {book.status}
-                                            </span>
-                                            {book.rating > 0 && (
-                                                <span className="rating">
-                                                    {'⭐'.repeat(book.rating)}
-                                                </span>
-                                            )}
-                                        </div>
                                     </div>
                                 </div>
                             ))

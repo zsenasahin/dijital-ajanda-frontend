@@ -90,17 +90,20 @@ const CalendarPage = () => {
   const [modal, setModal] = useState({ open: false, mode: 'add', eventIdx: null, start: null, end: null });
   const [eventForm, setEventForm] = useState({ title: '', desc: '', start: '', end: '', category: 'work' });
   const [menuOpen, setMenuOpen] = useState(false);
-  const userId = 1; // Örnek kullanıcı id'si
+  const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
   // Fetch events from backend
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await api.get('/api/Events');
+        const response = await api.get(`/api/Events/user/${userId}`);
         const formattedEvents = response.data.map(event => ({
-          ...event,
+          id: event.id,
+          title: event.title,
+          desc: event.description || '',
           start: new Date(event.start),
-          end: new Date(event.end)
+          end: new Date(event.end),
+          category: event.category || 'work'
         }));
         setEvents(formattedEvents);
       } catch (error) {
@@ -109,7 +112,7 @@ const CalendarPage = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [userId]);
 
   // Haftalık görünüm için haftanın ilk günü
   const getWeekStart = (date) => startOfWeek(date, { weekStartsOn: 1 });
@@ -151,27 +154,35 @@ const CalendarPage = () => {
       return;
     }
 
+    const startDate = new Date(eventForm.start);
+    const endDate = new Date(eventForm.end);
+
     const newEvent = {
       title: eventForm.title.trim(),
-      start: new Date(eventForm.start).toISOString(),
-      end: new Date(eventForm.end).toISOString(),
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
       description: eventForm.desc || '',
-      category: eventForm.category,
+      category: eventForm.category || 'work',
       userId: userId
     };
 
     try {
       const response = await api.post('/api/Events', newEvent);
+      // Backend'den dönen veriyi frontend formatına çevir
       const formattedEvent = {
-        ...response.data,
+        id: response.data.id,
+        title: response.data.title,
+        desc: response.data.description || '',
         start: new Date(response.data.start),
-        end: new Date(response.data.end)
+        end: new Date(response.data.end),
+        category: response.data.category || 'work'
       };
       setEvents([...events, formattedEvent]);
       setModal({ open: false, mode: 'add', eventIdx: null, start: null, end: null });
     } catch (error) {
-      alert(JSON.stringify(error.response?.data, null, 2));
       console.error('Error adding event:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data || 'Etkinlik eklenirken bir hata oluştu';
+      alert(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage, null, 2));
     }
   };
 
@@ -179,23 +190,36 @@ const CalendarPage = () => {
   const handleUpdateEvent = async () => {
     if (modal.eventIdx == null) return;
 
+    const eventToUpdate = events[modal.eventIdx];
+    const startDate = new Date(eventForm.start);
+    const endDate = new Date(eventForm.end);
+
     const updatedEvent = {
-      ...events[modal.eventIdx],
-      title: eventForm.title,
-      desc: eventForm.desc,
-      start: new Date(eventForm.start),
-      end: new Date(eventForm.end),
-      category: eventForm.category
+      title: eventForm.title.trim(),
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+      description: eventForm.desc || '',
+      category: eventForm.category || 'work'
     };
 
     try {
-      await api.put(`/api/Events/${updatedEvent.id}`, updatedEvent);
+      await api.put(`/api/Events/${eventToUpdate.id}`, updatedEvent);
+      // Backend'den dönen veriyi frontend formatına çevir
       const updated = [...events];
-      updated[modal.eventIdx] = updatedEvent;
+      updated[modal.eventIdx] = {
+        ...eventToUpdate,
+        title: eventForm.title.trim(),
+        desc: eventForm.desc || '',
+        start: startDate,
+        end: endDate,
+        category: eventForm.category || 'work'
+      };
       setEvents(updated);
       setModal({ open: false, mode: 'add', eventIdx: null, start: null, end: null });
     } catch (error) {
       console.error('Error updating event:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data || 'Etkinlik güncellenirken bir hata oluştu';
+      alert(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage, null, 2));
     }
   };
 

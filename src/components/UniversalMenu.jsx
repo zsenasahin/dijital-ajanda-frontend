@@ -13,41 +13,17 @@ const UniversalMenu = ({ isOpen, onClose }) => {
                     <button className="universal-menu-close" onClick={onClose}>×</button>
                 </div>
                 <nav className="universal-menu-nav">
+                    <Link to="/home" className="universal-menu-item" onClick={onClose}>
+                        <span className="menu-icon">🏠</span>
+                        Anasayfa
+                    </Link>
                     <Link to="/dashboard" className="universal-menu-item" onClick={onClose}>
                         <span className="menu-icon">📊</span>
                         Dashboard
                     </Link>
-                    <Link to="/home" className="universal-menu-item" onClick={onClose}>
-                        <span className="menu-icon">🏠</span>
-                        Ana Sayfa
-                    </Link>
                     <Link to="/calendar" className="universal-menu-item" onClick={onClose}>
                         <span className="menu-icon">📅</span>
                         Takvim
-                    </Link>
-                    <Link to="/goals" className="universal-menu-item" onClick={onClose}>
-                        <span className="menu-icon">🎯</span>
-                        Hedefler
-                    </Link>
-                    <Link to="/habits" className="universal-menu-item" onClick={onClose}>
-                        <span className="menu-icon">🔄</span>
-                        Alışkanlıklar
-                    </Link>
-                    <Link to="/books" className="universal-menu-item" onClick={onClose}>
-                        <span className="menu-icon">📚</span>
-                        Kitaplar
-                    </Link>
-                    <Link to="/journal" className="universal-menu-item" onClick={onClose}>
-                        <span className="menu-icon">📝</span>
-                        Günlük
-                    </Link>
-                    <Link to="/projects" className="universal-menu-item" onClick={onClose}>
-                        <span className="menu-icon">📋</span>
-                        Projeler
-                    </Link>
-                    <Link to="/kanban" className="universal-menu-item" onClick={onClose}>
-                        <span className="menu-icon">📊</span>
-                        Kanban Board
                     </Link>
                 </nav>
             </div>
