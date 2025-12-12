@@ -25,7 +25,6 @@ const Dashboard = () => {
     const [recentGoals, setRecentGoals] = useState([]);
     const [recentHabits, setRecentHabits] = useState([]);
     const [recentBooks, setRecentBooks] = useState([]);
-    const [menuOpen, setMenuOpen] = useState(false);
     const userId = localStorage.getItem('userId') || 1;
     const userName = localStorage.getItem('userName') || '';
 
@@ -99,7 +98,7 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-container">
-            <UniversalMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+            <UniversalMenu />
             
             <div className="dashboard-header">
                 <div className="dashboard-greeting">

@@ -138,7 +138,6 @@ const KanbanBoard = () => {
         projectId: '',
         assignee: ''
     });
-    const [menuOpen, setMenuOpen] = useState(false);
     const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     const sensors = useSensors(
@@ -181,15 +180,36 @@ const KanbanBoard = () => {
 
     const loadData = async () => {
         try {
-            const [tasksResponse, projectsResponse] = await Promise.all([
-                api.get(`/api/Tasks/user/${userId}`),
-                api.get(`/api/Projects/user/${userId}`)
-            ]);
+            // Tasks ve Projects'i ayrı ayrı yükle, biri hata verse bile diğeri yüklensin
+            let tasksData = [];
+            let projectsData = [];
+            
+            try {
+                const tasksResponse = await api.get(`/api/Tasks/user/${userId}`);
+                tasksData = tasksResponse.data || [];
+            } catch (tasksError) {
+                console.error('Error loading tasks:', tasksError);
+                // Tasks yüklenemezse boş array kullan
+                tasksData = [];
+            }
+            
+            try {
+                const projectsResponse = await api.get(`/api/Projects/user/${userId}`);
+                projectsData = projectsResponse.data || [];
+            } catch (projectsError) {
+                console.error('Error loading projects:', projectsError);
+                // Projects yüklenemezse boş array kullan
+                projectsData = [];
+            }
 
-            setTasks(tasksResponse.data);
-            setProjects(projectsResponse.data);
+            setTasks(tasksData);
+            setProjects(projectsData);
+            
+            console.log('Loaded tasks:', tasksData.length);
+            console.log('Loaded projects:', projectsData.length);
         } catch (error) {
             console.error('Error loading data:', error);
+            // Sessizce devam et, kullanıcıya alert gösterme
         }
     };
 
@@ -197,7 +217,20 @@ const KanbanBoard = () => {
         const organized = { ...columns };
         
         tasks.forEach(task => {
-            const columnId = task.status.toLowerCase().replace(/\s+/g, '');
+            // Status'u normalize et
+            let status = task.status?.toLowerCase() || 'todo';
+            // Eğer status "done" veya "completed" ise "done" olarak ayarla
+            if (status === 'completed' || status === 'done') {
+                status = 'done';
+            } else if (status === 'inprogress' || status === 'in progress') {
+                status = 'inProgress';
+            } else if (status === 'review') {
+                status = 'review';
+            } else {
+                status = 'todo';
+            }
+            
+            const columnId = status;
             if (organized[columnId]) {
                 organized[columnId].tasks.push(task);
             }
@@ -216,9 +249,10 @@ const KanbanBoard = () => {
 
         if (!activeTask || activeTask.status === targetColumn) return;
 
-        const newStatus = targetColumn === 'todo' ? 'Todo' :
-                         targetColumn === 'inProgress' ? 'InProgress' :
-                         targetColumn === 'review' ? 'Review' : 'Done';
+        // Status'u küçük harfe çevir (backend küçük harf bekliyor)
+        const newStatus = targetColumn === 'todo' ? 'todo' :
+                         targetColumn === 'inProgress' ? 'inprogress' :
+                         targetColumn === 'review' ? 'review' : 'done';
 
         try {
             await api.put(`/api/Tasks/${active.id}/status`, {
@@ -240,13 +274,17 @@ const KanbanBoard = () => {
     const handleOpenModal = (task = null) => {
         if (task) {
             setModal({ open: true, mode: 'edit', taskId: task.id });
+            // Priority'yi capitalize et (backend küçük harf gönderiyor)
+            const priority = task.priority 
+                ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1).toLowerCase()
+                : 'Medium';
             setFormData({
-                title: task.title,
+                title: task.title || '',
                 description: task.description || '',
-                priority: task.priority || 'Medium',
+                priority: priority,
                 estimatedHours: task.estimatedHours || '',
-                dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
-                projectId: task.projectId || '',
+                dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
+                projectId: task.projectId ? String(task.projectId) : '',
                 assignee: task.assignee || ''
             });
         } else {
@@ -274,24 +312,40 @@ const KanbanBoard = () => {
         }
 
         const taskData = {
-            ...formData,
-            userId: userId,
-            status: 'Todo',
-            estimatedHours: formData.estimatedHours !== '' ? parseInt(formData.estimatedHours) : null,
-            dueDate: formData.dueDate ? formData.dueDate : null
+            title: formData.title.trim(),
+            description: formData.description || '',
+            priority: formData.priority || 'Medium',
+            status: 'todo',
+            dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
+            projectId: formData.projectId ? parseInt(formData.projectId) : null,
+            userId: userId
         };
 
         try {
+            let response;
             if (modal.mode === 'add') {
-                await api.post('/api/Tasks', taskData);
+                response = await api.post('/api/Tasks', taskData);
+                console.log('Task created:', response.data);
             } else {
-                await api.put(`/api/Tasks/${modal.taskId}`, taskData);
+                // Update için sadece gerekli alanları gönder
+                const updateData = {
+                    title: taskData.title,
+                    description: taskData.description,
+                    priority: taskData.priority,
+                    status: taskData.status,
+                    dueDate: taskData.dueDate,
+                    projectId: taskData.projectId
+                };
+                response = await api.put(`/api/Tasks/${modal.taskId}`, updateData);
+                console.log('Task updated:', response.data);
             }
             handleCloseModal();
             await loadData();
         } catch (error) {
             console.error('Error saving task:', error);
-            alert('Görev kaydedilirken bir hata oluştu');
+            console.error('Error response:', error.response);
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data || error.message || 'Görev kaydedilirken bir hata oluştu';
+            alert('Hata: ' + (typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage, null, 2)));
         }
     };
 
@@ -331,7 +385,7 @@ const KanbanBoard = () => {
 
     return (
         <div className="kanban-container">
-            <UniversalMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+            <UniversalMenu />
             
             <div className="kanban-header">
                 <div className="kanban-title">
@@ -350,19 +404,19 @@ const KanbanBoard = () => {
                 </div>
                 <div className="stat-item">
                     <span className="stat-number">
-                        {tasks.filter(t => t.status === 'Done').length}
+                        {tasks.filter(t => (t.status?.toLowerCase() === 'done' || t.status?.toLowerCase() === 'completed')).length}
                     </span>
                     <span className="stat-label">Tamamlanan</span>
                 </div>
                 <div className="stat-item">
                     <span className="stat-number">
-                        {tasks.filter(t => t.status === 'InProgress').length}
+                        {tasks.filter(t => (t.status?.toLowerCase() === 'inprogress' || t.status?.toLowerCase() === 'in progress')).length}
                     </span>
                     <span className="stat-label">Devam Eden</span>
                 </div>
                 <div className="stat-item">
                     <span className="stat-number">
-                        {tasks.filter(t => t.status === 'Todo').length}
+                        {tasks.filter(t => (t.status?.toLowerCase() === 'todo' || !t.status)).length}
                     </span>
                     <span className="stat-label">Bekleyen</span>
                 </div>

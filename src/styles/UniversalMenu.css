@@ -1,3 +1,40 @@
+/* Menü Butonu */
+.universal-menu-button {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 1500;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    border: none;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a1a;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.universal-menu-button:hover {
+    transform: scale(1.05) rotate(90deg);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 1);
+}
+
+.universal-menu-button:active {
+    transform: scale(0.95);
+}
+
+.universal-menu-button svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
 .universal-menu-overlay {
     position: fixed;
     top: 0;

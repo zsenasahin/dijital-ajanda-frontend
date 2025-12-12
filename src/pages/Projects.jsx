@@ -30,7 +30,6 @@ const Projects = () => {
         icon: '📋',
         tags: []
     });
-    const [menuOpen, setMenuOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const userId = parseInt(localStorage.getItem('userId') || '1', 10);
@@ -51,17 +50,31 @@ const Projects = () => {
     const handleOpenModal = (project = null) => {
         if (project) {
             setModal({ open: true, mode: 'edit', projectId: project.id });
+            // Tags'i parse et - backend string olarak gönderiyor
+            let tagsArray = [];
+            if (project.tags) {
+                if (typeof project.tags === 'string') {
+                    try {
+                        tagsArray = project.tags ? project.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+                    } catch (e) {
+                        tagsArray = [];
+                    }
+                } else if (Array.isArray(project.tags)) {
+                    tagsArray = project.tags;
+                }
+            }
+            
             setFormData({
-                title: project.title,
+                title: project.title || '',
                 description: project.description || '',
                 status: project.status || 'Planned',
                 priority: project.priority || 'Medium',
-                startDate: project.startDate ? project.startDate.split('T')[0] : '',
-                endDate: project.endDate ? project.endDate.split('T')[0] : '',
+                startDate: project.startDate ? new Date(project.startDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                endDate: project.endDate ? new Date(project.endDate).toISOString().split('T')[0] : '',
                 progress: project.progress || 0,
                 color: project.color || '#6366f1',
                 icon: project.icon || '📋',
-                tags: project.tags || []
+                tags: tagsArray
             });
         } else {
             setModal({ open: true, mode: 'add', projectId: null });
@@ -85,17 +98,34 @@ const Projects = () => {
     };
 
     const handleSubmit = async () => {
-        if (!formData.title.trim()) {
+        if (!formData.title || !formData.title.trim()) {
             alert('Lütfen bir başlık girin');
             return;
         }
 
+        // Tags array'ini string'e çevir
+        const tagsString = Array.isArray(formData.tags) 
+            ? formData.tags.filter(t => t && t.trim()).join(',')
+            : (formData.tags || '');
+
+        // StartDate'i düzgün formatla
+        let startDateValue = formData.startDate;
+        if (!startDateValue) {
+            startDateValue = new Date().toISOString().split('T')[0];
+        }
+
         const projectData = {
-            ...formData,
-            userId: userId,
-            startDate: formData.startDate || new Date().toISOString().split('T')[0],
-            endDate: formData.endDate ? formData.endDate : null,
-            progress: parseInt(formData.progress)
+            title: formData.title.trim(),
+            description: formData.description || '',
+            status: formData.status || 'Planned',
+            priority: formData.priority || 'Medium',
+            startDate: startDateValue,
+            endDate: formData.endDate && formData.endDate.trim() ? formData.endDate : null,
+            progress: formData.progress ? parseFloat(formData.progress) : 0,
+            color: formData.color || '#6366f1',
+            icon: formData.icon || '📋',
+            tags: tagsString,
+            userId: userId
         };
 
         try {
@@ -108,7 +138,8 @@ const Projects = () => {
             await loadProjects();
         } catch (error) {
             console.error('Error saving project:', error);
-            alert('Proje kaydedilirken bir hata oluştu');
+            const errorMessage = error.response?.data?.message || error.response?.data || 'Proje kaydedilirken bir hata oluştu';
+            alert(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage, null, 2));
         }
     };
 
@@ -184,16 +215,13 @@ const Projects = () => {
 
     return (
         <div className="projects-container">
-            <UniversalMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+            <UniversalMenu />
             
             <div className="projects-header">
                 <div className="projects-title">
-                    <h1>📋 Projelerim</h1>
-                    <p>Projelerinizi organize edin ve ilerlemelerini takip edin</p>
+                    <h1><FaProjectDiagram /> Projelerim</h1>
+                    <p>{projects.length} proje kaydı</p>
                 </div>
-                <button className="add-project-btn" onClick={() => handleOpenModal()}>
-                    <FaPlus /> Yeni Proje
-                </button>
             </div>
 
             <div className="projects-filters">
@@ -234,8 +262,8 @@ const Projects = () => {
             </div>
 
             <div className="projects-grid">
-                {filteredProjects.map(project => (
-                    <div key={project.id} className="project-card">
+                {filteredProjects.map((project, index) => (
+                    <div key={project.id} className="project-card" style={{ '--index': index }}>
                         <div className="project-header">
                             <div className="project-icon" style={{ backgroundColor: project.color }}>
                                 {project.icon}
@@ -308,13 +336,18 @@ const Projects = () => {
                                 </div>
                             </div>
                             
-                            {project.tags.length > 0 && (
-                                <div className="project-tags">
-                                    {project.tags.map(tag => (
-                                        <span key={tag} className="tag">{tag}</span>
-                                    ))}
-                                </div>
-                            )}
+                            {project.tags && (() => {
+                                const tagsArray = typeof project.tags === 'string' 
+                                    ? project.tags.split(',').map(t => t.trim()).filter(t => t)
+                                    : (Array.isArray(project.tags) ? project.tags : []);
+                                return tagsArray.length > 0 && (
+                                    <div className="project-tags">
+                                        {tagsArray.map(tag => (
+                                            <span key={tag} className="tag">{tag}</span>
+                                        ))}
+                                    </div>
+                                );
+                            })()}
                         </div>
                         
                         <div className="project-footer">
@@ -331,12 +364,16 @@ const Projects = () => {
 
             {filteredProjects.length === 0 && (
                 <div className="empty-state">
-                    <div className="empty-icon">📋</div>
+                    <div className="empty-icon"><FaProjectDiagram /></div>
                     <h3>Henüz proje eklenmemiş</h3>
                     <p>İlk projenizi ekleyerek başlayın!</p>
-                    <button onClick={() => handleOpenModal()}>İlk Projeyi Ekle</button>
+                    <button onClick={() => handleOpenModal()}><FaPlus /> İlk Projeyi Ekle</button>
                 </div>
             )}
+
+            <button className="add-project-btn" onClick={() => handleOpenModal()} aria-label="Yeni Proje">
+                <FaPlus />
+            </button>
 
             {/* Modal */}
             {modal.open && (
@@ -450,6 +487,34 @@ const Projects = () => {
                                         >
                                             {icon}
                                         </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="form-group">
+                            <label>Etiketler</label>
+                            <div className="tags-input">
+                                <input
+                                    type="text"
+                                    placeholder="Etiket ekleyin ve Enter'a basın"
+                                    onKeyPress={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            const tag = e.target.value.trim();
+                                            if (tag && !formData.tags.includes(tag)) {
+                                                setFormData({ ...formData, tags: [...formData.tags, tag] });
+                                            }
+                                            e.target.value = '';
+                                        }
+                                    }}
+                                />
+                                <div className="tags-list">
+                                    {formData.tags.map(tag => (
+                                        <span key={tag} className="tag">
+                                            {tag}
+                                            <button onClick={() => setFormData({ ...formData, tags: formData.tags.filter(t => t !== tag) })}>×</button>
+                                        </span>
                                     ))}
                                 </div>
                             </div>
