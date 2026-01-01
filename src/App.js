@@ -11,10 +11,13 @@ import Books from './pages/Books';
 import Journal from './pages/Journal';
 import Projects from './pages/Projects';
 import KanbanBoard from './pages/KanbanBoard';
+import ChatbotWidget from './components/ChatbotWidget';
 
 function App() {
   return (
     <Router>
+      {/* Global mini asistan widget */}
+      <ChatbotWidget />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
