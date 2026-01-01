@@ -1,6 +1,6 @@
 .projects-container {
     min-height: 100vh;
-    background: url('../assets/pexels-tara-winstead-8383495.jpg');
+    background: url('../assets/pexels-storiesofdesign-15124866.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -22,7 +22,12 @@
     pointer-events: none;
 }
 
-.projects-container > * {
+/* Only set z-index on content elements, not the menu */
+.projects-header,
+.projects-filters,
+.projects-grid,
+.empty-state,
+.add-project-btn {
     position: relative;
     z-index: 1;
 }
@@ -39,6 +44,7 @@
         opacity: 0;
         transform: translateY(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -67,6 +73,7 @@
         opacity: 0;
         transform: translateX(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -86,6 +93,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -418,8 +426,13 @@
 }
 
 @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .project-tags {
@@ -479,8 +492,15 @@
 }
 
 @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 .empty-state h3 {
@@ -529,8 +549,13 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .projects-modal {
@@ -550,6 +575,7 @@
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -732,26 +758,195 @@
     box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
 }
 
+/* Tasks Modal Specifics */
+.tasks-modal {
+    max-width: 700px;
+}
+
+.tasks-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+}
+
+.tasks-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #ef4444;
+}
+
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
+}
+
+.task-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+}
+
+.task-badges {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.badge-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #475569;
+    text-transform: capitalize;
+}
+
+.badge-status.todo {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.badge-status.inprogress {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.badge-status.review {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.badge-status.done {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.badge-priority {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #64748b;
+}
+
+.task-detail-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #6366f1;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.task-detail-btn:hover {
+    background: #6366f1;
+    color: white;
+    border-color: #6366f1;
+}
+
+.loading-state,
+.no-tasks-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #6366f1;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.no-tasks-state svg {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #cbd5e1;
+}
+
+.create-task-btn {
+    margin-top: 1rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .projects-grid {
         grid-template-columns: 1fr;
         margin: 0 1rem 2rem 1rem;
     }
-    
+
     .projects-filters {
         margin: 0 1rem 2rem 1rem;
     }
-    
+
     .projects-header {
         padding: 4rem 1rem 2rem 1rem;
     }
-    
+
     .projects-title h1 {
         font-size: 2.5rem;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
+    }
+
+    .task-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .task-detail-btn {
+        width: 100%;
+        justify-content: center;
     }
 }

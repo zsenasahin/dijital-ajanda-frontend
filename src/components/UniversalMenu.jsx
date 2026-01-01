@@ -4,7 +4,7 @@ import '../styles/UniversalMenu.css';
 
 const UniversalMenu = ({ isOpen: externalIsOpen, onClose: externalOnClose }) => {
     const [internalIsOpen, setInternalIsOpen] = useState(false);
-    
+
     // Eğer external props varsa onları kullan, yoksa internal state kullan
     const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
     const handleClose = externalOnClose || (() => setInternalIsOpen(false));
@@ -20,7 +20,7 @@ const UniversalMenu = ({ isOpen: externalIsOpen, onClose: externalOnClose }) => 
         <>
             {/* Menü Butonu - sadece internal state kullanılıyorsa göster */}
             {externalIsOpen === undefined && (
-                <button 
+                <button
                     className="universal-menu-button"
                     onClick={handleToggle}
                     aria-label="Menü"
@@ -77,6 +77,10 @@ const UniversalMenu = ({ isOpen: externalIsOpen, onClose: externalOnClose }) => 
                             <Link to="/books" className="universal-menu-item" onClick={handleClose}>
                                 <span className="menu-icon">📚</span>
                                 Kitaplar
+                            </Link>
+                            <Link to="/profile" className="universal-menu-item" onClick={handleClose}>
+                                <span className="menu-icon">👤</span>
+                                Profil
                             </Link>
                         </nav>
                     </div>

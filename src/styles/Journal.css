@@ -22,7 +22,12 @@
     pointer-events: none;
 }
 
-.journal-container > * {
+/* Only set z-index on content elements, not the menu */
+.journal-header,
+.journal-toolbar,
+.journal-content,
+.empty-state,
+.fab {
     position: relative;
     z-index: 1;
 }
@@ -44,6 +49,7 @@
         opacity: 0;
         transform: translateY(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -72,6 +78,7 @@
         opacity: 0;
         transform: translateX(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -83,8 +90,15 @@
 }
 
 @keyframes rotateIcon {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(10deg); }
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(10deg);
+    }
 }
 
 .subtitle-animated {
@@ -100,6 +114,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -246,9 +261,12 @@
 }
 
 @keyframes pulseFab {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
     }
+
     50% {
         box-shadow: 0 8px 32px rgba(102, 126, 234, 0.6);
     }
@@ -289,7 +307,7 @@
     backdrop-filter: blur(30px);
     border-radius: 24px;
     padding: 2rem;
-    box-shadow: 
+    box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.05),
         0 4px 12px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.8);
@@ -313,6 +331,7 @@
         opacity: 0;
         transform: translateY(20px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -333,7 +352,7 @@
 
 .journal-entry-card:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 
+    box-shadow:
         0 8px 24px rgba(0, 0, 0, 0.12),
         0 16px 48px rgba(102, 126, 234, 0.15);
     border-color: rgba(102, 126, 234, 0.3);
@@ -367,9 +386,12 @@
 }
 
 @keyframes pulseOverlay {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 0.3;
     }
+
     50% {
         opacity: 0.5;
     }
@@ -408,8 +430,15 @@
 }
 
 @keyframes bounceEmoji {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
 }
 
 .mood-score-small {
@@ -534,7 +563,7 @@
     backdrop-filter: blur(30px);
     border-radius: 32px;
     padding: 4rem 2rem;
-    box-shadow: 
+    box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.05),
         0 8px 24px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.8);
@@ -549,8 +578,15 @@
 }
 
 @keyframes bounceIcon {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 .empty-state h3 {
@@ -606,8 +642,13 @@
 }
 
 @keyframes fadeInOverlay {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .journal-modal {
@@ -627,6 +668,7 @@
         transform: scale(0.9) translateY(20px);
         opacity: 0;
     }
+
     to {
         transform: scale(1) translateY(0);
         opacity: 1;
@@ -896,7 +938,7 @@
 
 .journal-detail-page {
     background: #fef9e7;
-    background-image: 
+    background-image:
         linear-gradient(90deg, rgba(200, 180, 140, 0.1) 1px, transparent 1px),
         linear-gradient(rgba(200, 180, 140, 0.1) 1px, transparent 1px);
     background-size: 100% 2em;
@@ -905,7 +947,7 @@
     max-width: 800px;
     max-height: 90vh;
     border-radius: 8px;
-    box-shadow: 
+    box-shadow:
         0 0 0 1px rgba(0, 0, 0, 0.1),
         0 20px 60px rgba(0, 0, 0, 0.3),
         inset 0 0 0 1px rgba(255, 255, 255, 0.5);
@@ -920,6 +962,7 @@
         transform: scale(0.9) translateY(20px);
         opacity: 0;
     }
+
     to {
         transform: scale(1) translateY(0);
         opacity: 1;
@@ -1191,9 +1234,19 @@
 }
 
 @keyframes shakeIcon {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-10deg); }
-    75% { transform: rotate(10deg); }
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
 }
 
 .password-modal h2 {
@@ -1237,31 +1290,31 @@
     .journal-header {
         padding: 5rem 1.5rem 1.5rem 1.5rem;
     }
-    
+
     .title-animated {
         font-size: 2.5rem;
     }
-    
+
     .journal-content {
         padding: 0 1rem 8rem 1rem;
     }
-    
+
     .journal-toolbar {
         padding: 0 1rem 1rem 1rem;
     }
-    
+
     .journal-entries-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
     .journal-menu-btn {
         top: 16px;
         left: 16px;
         width: 44px;
         height: 44px;
     }
-    
+
     .fab {
         bottom: 24px;
         right: 24px;
@@ -1269,34 +1322,34 @@
         height: 56px;
         font-size: 1.3rem;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .modal-actions {
         flex-direction: column;
     }
-    
+
     .detail-page-content {
         padding: 1.5rem 1.5rem;
         max-height: calc(95vh - 80px);
     }
-    
+
     .detail-title {
         font-size: 1.5rem;
     }
-    
+
     .detail-content {
         font-size: 1rem;
         line-height: 1.8em;
     }
-    
+
     .detail-actions {
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .detail-action-btn {
         width: 100%;
         justify-content: center;
@@ -1308,15 +1361,15 @@
         padding: 1.5rem;
         margin: 1rem;
     }
-    
+
     .mood-selector {
         justify-content: center;
     }
-    
+
     .entry-images {
         grid-template-columns: 1fr;
     }
-    
+
     .journal-detail-overlay {
         padding: 1rem;
     }

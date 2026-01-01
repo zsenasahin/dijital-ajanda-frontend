@@ -1,0 +1,594 @@
+/* Profile Page Styles */
+.profile-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 2rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #fff;
+}
+
+/* Profile Header */
+.profile-header {
+    margin-bottom: 3rem;
+}
+
+.profile-hero {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.profile-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: white;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-input {
+    width: 150px;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+.avatar-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(90deg, #fff, #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.name-input {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.profile-bio {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+    max-width: 600px;
+}
+
+.bio-input {
+    width: 100%;
+    min-height: 100px;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+    resize: vertical;
+    margin-bottom: 1rem;
+    font-family: inherit;
+}
+
+.bio-input::placeholder,
+.name-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.edit-btn,
+.save-btn,
+.cancel-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+}
+
+.cancel-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Mood Summary Section */
+.mood-summary-section {
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    color: white;
+}
+
+.section-title svg {
+    color: #667eea;
+}
+
+.mood-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card .card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.total-card .card-icon {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.positive-card .card-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.neutral-card .card-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.negative-card .card-icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+}
+
+.card-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Average Score Bar */
+.average-score-section {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.average-score-bar {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.score-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.label-negative { color: #ef4444; }
+.label-neutral { color: #f59e0b; }
+.label-positive { color: #10b981; }
+
+.score-track {
+    height: 12px;
+    background: linear-gradient(90deg, #ef4444, #f59e0b 50%, #10b981);
+    border-radius: 6px;
+    position: relative;
+}
+
+.score-indicator {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: left 0.5s ease;
+}
+
+.average-label {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.average-label strong {
+    color: white;
+    font-size: 1.25rem;
+}
+
+/* Mood Chart Section */
+.mood-chart-section {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.days-select {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.days-select:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.days-select option {
+    background: #1a1a2e;
+    color: white;
+}
+
+.chart-container {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.chart-empty {
+    text-align: center;
+    padding: 3rem;
+}
+
+.chart-empty .empty-icon {
+    font-size: 4rem;
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 1rem;
+}
+
+.chart-empty h3 {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem 0;
+    color: white;
+}
+
+.chart-empty p {
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 1.5rem 0;
+}
+
+.write-journal-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.write-journal-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+}
+
+/* Tooltip Styles */
+.mood-tooltip {
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip-date {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 0.5rem 0;
+}
+
+.tooltip-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    margin: 0 0 0.5rem 0;
+}
+
+.tooltip-score {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Chart Legend */
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.legend-color.positive {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.legend-color.neutral {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.legend-color.negative {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* AI Info Section */
+.ai-info-section {
+    background: rgba(102, 126, 234, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.ai-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.ai-icon {
+    font-size: 1.2rem;
+}
+
+.ai-info-section p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+}
+
+/* Recharts overrides */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+    stroke: rgba(255, 255, 255, 0.05);
+}
+
+.recharts-legend-item-text {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 1rem;
+    }
+
+    .profile-hero {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .profile-name {
+        font-size: 2rem;
+    }
+
+    .profile-actions {
+        justify-content: center;
+    }
+
+    .mood-summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ai-info-section {
+        flex-direction: column;
+    }
+
+    .chart-legend {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .mood-summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        font-size: 3rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+}

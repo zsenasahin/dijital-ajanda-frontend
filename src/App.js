@@ -11,6 +11,7 @@ import Books from './pages/Books';
 import Journal from './pages/Journal';
 import Projects from './pages/Projects';
 import KanbanBoard from './pages/KanbanBoard';
+import ProfilePage from './pages/ProfilePage';
 import ChatbotWidget from './components/ChatbotWidget';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/journal" element={<Journal />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/kanban" element={<KanbanBoard />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </Router>
   );

@@ -26,6 +26,7 @@ const UniversalMenu = () => {
             <li onClick={() => { setMenuOpen(false); navigate('/home'); }}>Anasayfa</li>
             <li onClick={() => { setMenuOpen(false); navigate('/dashboard'); }}>Dashboard</li>
             <li onClick={() => { setMenuOpen(false); navigate('/calendar'); }}>Takvim</li>
+            <li onClick={() => { setMenuOpen(false); navigate('/profile'); }}>Profil</li>
           </ul>
         </div>
       )}

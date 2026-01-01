@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
 import api from '../services/api';
-import { 
-    FaPlus, 
-    FaEdit, 
-    FaTrash, 
-    FaProjectDiagram, 
-    FaCalendarAlt, 
+import {
+    FaPlus,
+    FaEdit,
+    FaTrash,
+    FaProjectDiagram,
+    FaCalendarAlt,
     FaFlag,
     FaChartLine,
-    FaTasks
+    FaTasks,
+    FaArrowRight,
+    FaTimes,
+    FaCheckCircle,
+    FaSpinner
 } from 'react-icons/fa';
 import '../styles/Projects.css';
 
@@ -18,6 +22,7 @@ const Projects = () => {
     const navigate = useNavigate();
     const [projects, setProjects] = useState([]);
     const [modal, setModal] = useState({ open: false, mode: 'add', projectId: null });
+    const [tasksModal, setTasksModal] = useState({ open: false, project: null, tasks: [], loading: false });
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -63,7 +68,7 @@ const Projects = () => {
                     tagsArray = project.tags;
                 }
             }
-            
+
             setFormData({
                 title: project.title || '',
                 description: project.description || '',
@@ -97,18 +102,38 @@ const Projects = () => {
         setModal({ open: false, mode: 'add', projectId: null });
     };
 
+    const handleViewTasks = async (project) => {
+        setTasksModal({ open: true, project: project, tasks: [], loading: true });
+        try {
+            // First try to get tasks by project if endpoint exists, otherwise get all user tasks and filter
+            // Assuming we need to fetch all user tasks and filter for now as we did in Kanban
+            const response = await api.get(`/api/Tasks/user/${userId}`);
+            const projectTasks = response.data.filter(t => t.projectId === project.id);
+            setTasksModal({ open: true, project: project, tasks: projectTasks, loading: false });
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+            setTasksModal(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    const closeTasksModal = () => {
+        setTasksModal({ open: false, project: null, tasks: [], loading: false });
+    };
+
+    const navigateToTask = (taskId) => {
+        navigate('/kanban', { state: { taskId: taskId } });
+    };
+
     const handleSubmit = async () => {
         if (!formData.title || !formData.title.trim()) {
             alert('Lütfen bir başlık girin');
             return;
         }
 
-        // Tags array'ini string'e çevir
-        const tagsString = Array.isArray(formData.tags) 
+        const tagsString = Array.isArray(formData.tags)
             ? formData.tags.filter(t => t && t.trim()).join(',')
             : (formData.tags || '');
 
-        // StartDate'i düzgün formatla
         let startDateValue = formData.startDate;
         if (!startDateValue) {
             startDateValue = new Date().toISOString().split('T')[0];
@@ -207,7 +232,7 @@ const Projects = () => {
     const filteredProjects = projects.filter(project => {
         const matchesFilter = activeFilter === 'all' || project.status === activeFilter;
         const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            project.description?.toLowerCase().includes(searchTerm.toLowerCase());
+            project.description?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
@@ -216,7 +241,7 @@ const Projects = () => {
     return (
         <div className="projects-container">
             <UniversalMenu />
-            
+
             <div className="projects-header">
                 <div className="projects-title">
                     <h1><FaProjectDiagram /> Projelerim</h1>
@@ -234,25 +259,25 @@ const Projects = () => {
                     />
                 </div>
                 <div className="filter-buttons">
-                    <button 
+                    <button
                         className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
                         onClick={() => setActiveFilter('all')}
                     >
                         Tümü ({projects.length})
                     </button>
-                    <button 
+                    <button
                         className={`filter-btn ${activeFilter === 'Planned' ? 'active' : ''}`}
                         onClick={() => setActiveFilter('Planned')}
                     >
                         Planlandı ({projects.filter(p => p.status === 'Planned').length})
                     </button>
-                    <button 
+                    <button
                         className={`filter-btn ${activeFilter === 'InProgress' ? 'active' : ''}`}
                         onClick={() => setActiveFilter('InProgress')}
                     >
                         Devam Ediyor ({projects.filter(p => p.status === 'InProgress').length})
                     </button>
-                    <button 
+                    <button
                         className={`filter-btn ${activeFilter === 'Completed' ? 'active' : ''}`}
                         onClick={() => setActiveFilter('Completed')}
                     >
@@ -269,13 +294,13 @@ const Projects = () => {
                                 {project.icon}
                             </div>
                             <div className="project-actions">
-                                <button 
+                                <button
                                     className="action-btn edit"
                                     onClick={() => handleOpenModal(project)}
                                 >
                                     <FaEdit />
                                 </button>
-                                <button 
+                                <button
                                     className="action-btn delete"
                                     onClick={() => handleDelete(project.id)}
                                 >
@@ -283,30 +308,30 @@ const Projects = () => {
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div className="project-content">
                             <h3 className="project-title">{project.title}</h3>
-                            
+
                             {project.description && (
                                 <p className="project-description">{project.description}</p>
                             )}
-                            
+
                             <div className="project-meta">
                                 <div className="project-status">
-                                    <span 
-                                        className="status-badge" 
+                                    <span
+                                        className="status-badge"
                                         style={{ backgroundColor: getStatusColor(project.status) }}
                                     >
                                         {getStatusText(project.status)}
                                     </span>
                                 </div>
-                                
+
                                 <div className="project-priority">
                                     <FaFlag style={{ color: getPriorityColor(project.priority) }} />
                                     <span>{getPriorityText(project.priority)}</span>
                                 </div>
                             </div>
-                            
+
                             <div className="project-dates">
                                 <div className="date-item">
                                     <FaCalendarAlt />
@@ -319,25 +344,25 @@ const Projects = () => {
                                     </div>
                                 )}
                             </div>
-                            
+
                             <div className="project-progress">
                                 <div className="progress-header">
                                     <span>İlerleme</span>
                                     <span className="progress-percentage">{project.progress}%</span>
                                 </div>
                                 <div className="progress-bar">
-                                    <div 
-                                        className="progress-fill" 
-                                        style={{ 
+                                    <div
+                                        className="progress-fill"
+                                        style={{
                                             width: `${project.progress}%`,
                                             backgroundColor: getProgressColor(project.progress)
                                         }}
                                     ></div>
                                 </div>
                             </div>
-                            
+
                             {project.tags && (() => {
-                                const tagsArray = typeof project.tags === 'string' 
+                                const tagsArray = typeof project.tags === 'string'
                                     ? project.tags.split(',').map(t => t.trim()).filter(t => t)
                                     : (Array.isArray(project.tags) ? project.tags : []);
                                 return tagsArray.length > 0 && (
@@ -349,11 +374,11 @@ const Projects = () => {
                                 );
                             })()}
                         </div>
-                        
+
                         <div className="project-footer">
-                            <button 
+                            <button
                                 className="view-tasks-btn"
-                                onClick={() => navigate('/kanban')}
+                                onClick={() => handleViewTasks(project)}
                             >
                                 <FaTasks /> Görevleri Gör
                             </button>
@@ -375,12 +400,12 @@ const Projects = () => {
                 <FaPlus />
             </button>
 
-            {/* Modal */}
+            {/* Project Edit/Add Modal */}
             {modal.open && (
                 <div className="projects-modal-overlay" onClick={handleCloseModal}>
                     <div className="projects-modal" onClick={e => e.stopPropagation()}>
                         <h2>{modal.mode === 'add' ? 'Yeni Proje' : 'Projeyi Düzenle'}</h2>
-                        
+
                         <div className="form-group">
                             <label>Proje Adı *</label>
                             <input
@@ -391,7 +416,7 @@ const Projects = () => {
                                 required
                             />
                         </div>
-                        
+
                         <div className="form-group">
                             <label>Açıklama</label>
                             <textarea
@@ -401,7 +426,7 @@ const Projects = () => {
                                 rows="3"
                             />
                         </div>
-                        
+
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Durum</label>
@@ -416,7 +441,7 @@ const Projects = () => {
                                     <option value="Cancelled">İptal Edildi</option>
                                 </select>
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>Öncelik</label>
                                 <select
@@ -430,7 +455,7 @@ const Projects = () => {
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Başlangıç Tarihi</label>
@@ -440,7 +465,7 @@ const Projects = () => {
                                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                                 />
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>Bitiş Tarihi</label>
                                 <input
@@ -450,7 +475,7 @@ const Projects = () => {
                                 />
                             </div>
                         </div>
-                        
+
                         <div className="form-group">
                             <label>İlerleme (%)</label>
                             <input
@@ -463,7 +488,7 @@ const Projects = () => {
                             />
                             <span className="progress-value">{formData.progress}%</span>
                         </div>
-                        
+
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Renk</label>
@@ -474,7 +499,7 @@ const Projects = () => {
                                     className="color-picker"
                                 />
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>İkon</label>
                                 <div className="icon-selector">
@@ -491,7 +516,7 @@ const Projects = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="form-group">
                             <label>Etiketler</label>
                             <div className="tags-input">
@@ -519,7 +544,7 @@ const Projects = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="modal-actions">
                             <button className="btn-secondary" onClick={handleCloseModal}>
                                 İptal
@@ -527,6 +552,70 @@ const Projects = () => {
                             <button className="btn-primary" onClick={handleSubmit}>
                                 {modal.mode === 'add' ? 'Oluştur' : 'Güncelle'}
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* List Tasks Modal */}
+            {tasksModal.open && (
+                <div className="projects-modal-overlay tasks-modal-overlay" onClick={closeTasksModal}>
+                    <div className="projects-modal tasks-modal" onClick={e => e.stopPropagation()}>
+                        <div className="tasks-modal-header">
+                            <h2>
+                                {tasksModal.project?.icon} {tasksModal.project?.title} - Görevler
+                            </h2>
+                            <button className="close-btn" onClick={closeTasksModal}>
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        <div className="tasks-list-container">
+                            {tasksModal.loading ? (
+                                <div className="loading-state">
+                                    <FaSpinner className="spinner" />
+                                    <p>Görevler yükleniyor...</p>
+                                </div>
+                            ) : tasksModal.tasks.length > 0 ? (
+                                <div className="tasks-list">
+                                    {tasksModal.tasks.map(task => (
+                                        <div key={task.id} className="task-item">
+                                            <div className="task-info">
+                                                <h4>{task.title}</h4>
+                                                <div className="task-badges">
+                                                    <span className={`badge-status ${task.status?.toLowerCase()}`}>
+                                                        {task.status === 'todo' ? 'Yapılacak' :
+                                                            task.status === 'inprogress' ? 'Devam Ediyor' :
+                                                                task.status === 'review' ? 'İncelemede' : 'Tamamlandı'}
+                                                    </span>
+                                                    <span className="badge-priority">
+                                                        <FaFlag style={{ color: getPriorityColor(task.priority) }} />
+                                                        {getPriorityText(task.priority)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="task-detail-btn"
+                                                onClick={() => navigateToTask(task.id)}
+                                                title="Detayı Gör"
+                                            >
+                                                Detayı Gör <FaArrowRight />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="no-tasks-state">
+                                    <FaTasks />
+                                    <p>Bu projeye ait görev bulunmuyor.</p>
+                                    <button
+                                        className="btn-primary create-task-btn"
+                                        onClick={() => navigate('/kanban')}
+                                    >
+                                        Görev Oluşturmak İçin Kanbana Git
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
