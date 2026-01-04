@@ -39,6 +39,10 @@ const Habits = () => {
     const navigate = useNavigate();
     const [habits, setHabits] = useState([]);
     const [modal, setModal] = useState({ open: false, mode: 'add', habitId: null });
+    const [detailModal, setDetailModal] = useState({ open: false, habit: null });
+    const [checkedDays, setCheckedDays] = useState({});
+    const [checkedCounts, setCheckedCounts] = useState({});
+    const [streakCelebration, setStreakCelebration] = useState({ show: false, streak: 0 });
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -56,7 +60,6 @@ const Habits = () => {
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [iconPickerOpen, setIconPickerOpen] = useState(false);
-    const [circleOffset, setCircleOffset] = useState({});
     const [error, setError] = useState(null);
     const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
@@ -73,64 +76,6 @@ const Habits = () => {
             console.error('Error loading habits:', error);
             setError('Veriler yüklenemedi. Backend bağlantısı koptu veya zaman aşımına uğradı.');
         }
-    };
-
-    // Alışkanlık için günleri hesapla (startDate'den bugüne)
-    const getHabitDays = (habit) => {
-        const days = [];
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // startDate yoksa veya geçersizse, son 7 günü göster
-        let startDate = habit.startDate ? new Date(habit.startDate) : null;
-        if (!startDate || isNaN(startDate.getTime())) {
-            startDate = new Date(today);
-            startDate.setDate(startDate.getDate() - 6);
-        }
-        startDate.setHours(0, 0, 0, 0);
-
-        // startDate ile bugün arasındaki gün sayısı
-        const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
-        const totalDays = Math.min(diffDays, 365); // Max 1 yıl
-
-        for (let i = totalDays - 1; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            days.push({
-                date: date.toISOString().split('T')[0],
-                dayName: date.toLocaleDateString('tr-TR', { weekday: 'short' }),
-                dayNumber: date.getDate()
-            });
-        }
-        return days;
-    };
-
-    // Görünür günleri al (max 7, offset ile)
-    const getVisibleDays = (habit) => {
-        const allDays = getHabitDays(habit);
-        const offset = circleOffset[habit.id] || 0;
-        const endIdx = allDays.length - offset;
-        const startIdx = Math.max(0, endIdx - 7);
-        return allDays.slice(startIdx, endIdx);
-    };
-
-    const getTotalDays = (habit) => getHabitDays(habit).length;
-
-    const canScrollLeft = (habit) => {
-        const offset = circleOffset[habit.id] || 0;
-        return offset < getTotalDays(habit) - 7;
-    };
-
-    const canScrollRight = (habit) => {
-        const offset = circleOffset[habit.id] || 0;
-        return offset > 0;
-    };
-
-    const scrollCircles = (habitId, direction) => {
-        setCircleOffset(prev => ({
-            ...prev,
-            [habitId]: Math.max(0, (prev[habitId] || 0) + (direction === 'left' ? 7 : -7))
-        }));
     };
 
     const handleOpenModal = (habit = null) => {
@@ -213,6 +158,24 @@ const Habits = () => {
         }
     };
 
+    const handleToggleEntry = async (habitId, entryId) => {
+        try {
+            await api.put(`/api/Habits/${habitId}/entry/${entryId}/toggle`);
+            await loadHabits();
+
+            // Seri hesapla ve kutla
+            const habit = habits.find(h => h.id === habitId);
+            if (habit) {
+                const streak = getStreak(habit);
+                if (streak > 0) {
+                    showStreakCelebration(streak);
+                }
+            }
+        } catch (error) {
+            console.error('Error toggling entry:', error);
+        }
+    };
+
     const handleToggleDay = async (habitId, date) => {
         const habit = habits.find(h => h.id === habitId);
         const hasCompletion = habit?.completions?.some(c =>
@@ -242,6 +205,79 @@ const Habits = () => {
         }
     };
 
+    const showStreakCelebration = (streak) => {
+        setStreakCelebration({ show: true, streak });
+        setTimeout(() => {
+            setStreakCelebration({ show: false, streak: 0 });
+        }, 3000);
+    };
+
+    const handleOpenDetailModal = (habit) => {
+        // Initialize checkedDays for this habit based on targetFrequency
+        const initialChecked = {};
+        for (let i = 0; i < habit.targetFrequency; i++) {
+            initialChecked[i] = false;
+        }
+        setCheckedDays(initialChecked);
+        setDetailModal({ open: true, habit });
+    };
+
+    const handleCloseDetailModal = () => {
+        setDetailModal({ open: false, habit: null });
+        setCheckedDays({});
+        // Not: checkedCounts'u sıfırlamıyoruz, kullanıcı görebilsin
+    };
+
+    const handleToggleCheckbox = (index) => {
+        const newCheckedDays = {
+            ...checkedDays,
+            [index]: !checkedDays[index]
+        };
+        setCheckedDays(newCheckedDays);
+
+        // İşaretlenen sayıyı hesapla
+        const checkedCount = Object.values(newCheckedDays).filter(Boolean).length;
+
+        // Habit için checkbox sayısını güncelle
+        if (detailModal.habit) {
+            setCheckedCounts(prev => ({
+                ...prev,
+                [detailModal.habit.id]: checkedCount
+            }));
+        }
+
+        // Küçük feedback - işaretlenen sayıyı göster
+        if (newCheckedDays[index]) {
+            showStreakCelebration(checkedCount);
+        }
+    };
+
+    const handleMarkComplete = async (habitId) => {
+        try {
+            await api.put(`/api/Habits/${habitId}/markComplete`);
+            await loadHabits();
+            handleCloseDetailModal();
+
+            // Büyük kutlama için farklı bir state kullanabiliriz
+            // Şimdilik aynı kutlamayı daha uzun süre göstereceğiz
+            setStreakCelebration({ show: true, streak: detailModal.habit.targetFrequency, isBig: true });
+            setTimeout(() => {
+                setStreakCelebration({ show: false, streak: 0, isBig: false });
+            }, 5000); // 5 saniye göster (normal 3 saniye)
+        } catch (error) {
+            console.error('Error marking habit complete:', error);
+        }
+    };
+
+    const allChecked = () => {
+        if (!detailModal.habit) return false;
+        const total = detailModal.habit.targetFrequency || 1;
+        for (let i = 0; i < total; i++) {
+            if (!checkedDays[i]) return false;
+        }
+        return true;
+    };
+
     const isCompleted = (habit, date) => {
         return habit.completions?.some(c =>
             (c.completedAt || c.date || '').split('T')[0] === date
@@ -249,6 +285,11 @@ const Habits = () => {
     };
 
     const getStreak = (habit) => {
+        // Önce lokal checkbox sayısına bak
+        if (checkedCounts[habit.id]) {
+            return checkedCounts[habit.id];
+        }
+
         if (!habit.completions || habit.completions.length === 0) return 0;
 
         const sortedCompletions = habit.completions
@@ -357,42 +398,24 @@ const Habits = () => {
                                     <span className="category-badge">
                                         {getCategoryText(habit.category)}
                                     </span>
+                                    {habit.completedAt && (
+                                        <span className="completed-badge">
+                                            ✅ Tamamlandı
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Haftalık Yuvarlak Halkalar - Kaydırmalı */}
-                        <div className="habit-circles-container">
-                            {canScrollLeft(habit) && (
-                                <button className="circle-nav-btn left" onClick={() => scrollCircles(habit.id, 'left')}>◀</button>
-                            )}
-                            <div className="habit-week-circles">
-                                {getVisibleDays(habit).map(day => (
-                                    <div key={day.date} className="day-circle-wrapper">
-                                        <span className="day-label">{day.dayName}</span>
-                                        <button
-                                            className={`day-circle ${isCompleted(habit, day.date) ? 'completed' : ''}`}
-                                            style={{
-                                                borderColor: habit.color,
-                                                backgroundColor: isCompleted(habit, day.date) ? habit.color : 'transparent'
-                                            }}
-                                            onClick={() => handleToggleDay(habit.id, day.date)}
-                                        >
-                                            {isCompleted(habit, day.date) && (
-                                                <span className="circle-icon">{habit.icon}</span>
-                                            )}
-                                        </button>
-                                        <span className="day-number">{day.dayNumber}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            {canScrollRight(habit) && (
-                                <button className="circle-nav-btn right" onClick={() => scrollCircles(habit.id, 'right')}>▶</button>
-                            )}
-                        </div>
-
                         {/* Aksiyonlar */}
                         <div className="habit-row-actions">
+                            <button
+                                className="habit-action-btn detail"
+                                onClick={() => handleOpenDetailModal(habit)}
+                                title="Detay Gör"
+                            >
+                                👁️
+                            </button>
                             <button
                                 className="habit-action-btn"
                                 onClick={() => handleOpenModal(habit)}
@@ -582,6 +605,87 @@ const Habits = () => {
                             <button className="btn-primary" onClick={handleSubmit}>
                                 {modal.mode === 'add' ? 'Oluştur' : 'Güncelle'}
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Detay Modal */}
+            {detailModal.open && detailModal.habit && (
+                <div className="detail-modal-overlay" onClick={handleCloseDetailModal}>
+                    <div className="detail-modal" onClick={e => e.stopPropagation()}>
+                        <div className="detail-modal-header">
+                            <div className="detail-modal-title">
+                                <div className="detail-icon-circle" style={{ backgroundColor: detailModal.habit.color }}>
+                                    {detailModal.habit.icon}
+                                </div>
+                                <div>
+                                    <h2>{detailModal.habit.title}</h2>
+                                    <p className="detail-frequency">
+                                        {detailModal.habit.targetFrequency} {detailModal.habit.frequencyUnit === 'day' ? 'kez/gün' : detailModal.habit.frequencyUnit === 'week' ? 'kez/hafta' : 'kez/ay'}
+                                    </p>
+                                </div>
+                            </div>
+                            <button className="detail-close-btn" onClick={handleCloseDetailModal}>
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        <div className="detail-modal-body">
+                            {/* Tamamlandı mı kontrolü */}
+                            {detailModal.habit.completedAt ? (
+                                <div className="habit-completed-message">
+                                    <span className="completed-icon">✅</span>
+                                    <p>Bu alışkanlık {new Date(detailModal.habit.completedAt).toLocaleDateString('tr-TR')} tarihinde tamamlandı!</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Checkbox Grid */}
+                                    <div className="checkbox-grid">
+                                        {Array.from({ length: detailModal.habit.targetFrequency || 1 }, (_, i) => (
+                                            <div key={i} className="checkbox-item">
+                                                <button
+                                                    className={`checkbox-circle ${checkedDays[i] ? 'checked' : ''}`}
+                                                    style={{
+                                                        borderColor: detailModal.habit.color,
+                                                        backgroundColor: checkedDays[i] ? detailModal.habit.color : 'transparent'
+                                                    }}
+                                                    onClick={() => handleToggleCheckbox(i)}
+                                                >
+                                                    {checkedDays[i] && (
+                                                        <span className="checkbox-icon">{detailModal.habit.icon}</span>
+                                                    )}
+                                                </button>
+                                                <span className="checkbox-label">Gün {i + 1}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Tamamla Butonu */}
+                                    {allChecked() && (
+                                        <button
+                                            className="complete-habit-btn"
+                                            onClick={() => handleMarkComplete(detailModal.habit.id)}
+                                        >
+                                            🎉 Alışkanlığı Tamamla
+                                        </button>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Seri Kutlama (Duolingo Tarzı) */}
+            {streakCelebration.show && (
+                <div className="streak-celebration">
+                    <div className="streak-celebration-content">
+                        <div className="streak-flame">🔥</div>
+                        <div className="streak-number">{streakCelebration.streak}</div>
+                        <div className="streak-text">Günlük Seri!</div>
+                        <div className="streak-confetti">
+                            🎉✨🎊⭐🌟
                         </div>
                     </div>
                 </div>

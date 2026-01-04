@@ -10,7 +10,10 @@ import {
     FaEye,
     FaCheckCircle,
     FaSearch,
-    FaFilter
+    FaFilter,
+    FaLightbulb,
+    FaTimes,
+    FaSpinner
 } from 'react-icons/fa';
 import '../styles/Books.css';
 
@@ -33,6 +36,15 @@ const Books = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [recommendationModal, setRecommendationModal] = useState({ open: false });
+    const [recommendationFilters, setRecommendationFilters] = useState({
+        useMyBooks: true,
+        filterGenre: '',
+        filterAuthorType: '',
+        numberOfRecommendations: 10
+    });
+    const [recommendations, setRecommendations] = useState([]);
+    const [loadingRecommendations, setLoadingRecommendations] = useState(false);
     const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     useEffect(() => {
@@ -200,6 +212,61 @@ const Books = () => {
         return Math.round((book.currentPage / book.totalPages) * 100);
     };
 
+    const handleGetRecommendations = async () => {
+        setLoadingRecommendations(true);
+        setRecommendations([]);
+
+        try {
+            const response = await api.post(`/api/Books/user/${userId}/recommendations`, {
+                useMyBooks: recommendationFilters.useMyBooks,
+                genres: [],
+                filterGenre: recommendationFilters.filterGenre || null,
+                filterAuthorType: recommendationFilters.filterAuthorType || null,
+                numberOfRecommendations: recommendationFilters.numberOfRecommendations
+            });
+
+            console.log('Recommendation response:', response.data);
+            if (response.data.success && response.data.recommendations) {
+                console.log('Recommendations:', response.data.recommendations);
+                setRecommendations(response.data.recommendations);
+            } else {
+                alert(response.data.error || 'Öneri alınırken bir hata oluştu');
+            }
+        } catch (error) {
+            console.error('Error getting recommendations:', error);
+            const errorMessage = error.response?.data?.error || error.message || 'Öneri alınırken bir hata oluştu';
+            alert(errorMessage);
+        } finally {
+            setLoadingRecommendations(false);
+        }
+    };
+
+    const handleAddRecommendedBook = async (recommendedBook) => {
+        try {
+            const bookData = {
+                title: recommendedBook.title,
+                author: recommendedBook.author,
+                description: recommendedBook.description || '',
+                status: 'ToRead',
+                userId: userId,
+                tags: recommendedBook.genre ? [recommendedBook.genre] : []
+            };
+
+            await api.post('/api/Books', bookData);
+            alert('Kitap listenize eklendi!');
+            loadBooks();
+        } catch (error) {
+            console.error('Error adding recommended book:', error);
+            alert('Kitap eklenirken bir hata oluştu');
+        }
+    };
+
+    const genres = [
+        'Fantasy', 'Science Fiction', 'Mystery', 'Romance', 'Horror', 'Thriller',
+        'Biography', 'History', 'Philosophy', 'Psychology', 'Self-Help', 'Cooking',
+        'Travel', 'Classic', 'Children', 'Programming', 'Business', 'Non-Fiction', 'General Fiction'
+    ];
+
     return (
         <div className="books-container">
             <UniversalMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
@@ -277,6 +344,10 @@ const Books = () => {
                 </div>
 
                 <div className="toolbar-right">
+                    <button className="recommend-book-btn" onClick={() => setRecommendationModal({ open: true })}>
+                        <FaLightbulb className="btn-icon" />
+                        <span>Kitap Öner</span>
+                    </button>
                     <button className="add-book-btn" onClick={() => handleOpenModal()}>
                         <FaPlus className="btn-icon" />
                         <span>Yeni Kitap</span>
@@ -527,6 +598,151 @@ const Books = () => {
                                 {modal.mode === 'add' ? 'Ekle' : 'Güncelle'}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Kitap Öneri Modal */}
+            {recommendationModal.open && (
+                <div className="books-modal-overlay" onClick={() => setRecommendationModal({ open: false })}>
+                    <div className="books-modal recommendation-modal" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Kitap Önerisi Al</h2>
+                            <button className="modal-close-btn" onClick={() => setRecommendationModal({ open: false })}>
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        <div className="recommendation-filters">
+                            <div className="form-group">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={recommendationFilters.useMyBooks}
+                                        onChange={(e) => setRecommendationFilters({
+                                            ...recommendationFilters,
+                                            useMyBooks: e.target.checked
+                                        })}
+                                    />
+                                    <span>Okuduğum kitaplara göre öner</span>
+                                </label>
+                                <p className="filter-hint">
+                                    {books.filter(b => b.status === 'CurrentlyReading' || b.status === 'Completed').length}
+                                    kitabınız analiz edilecek
+                                </p>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Tür Filtresi (Opsiyonel)</label>
+                                    <select
+                                        value={recommendationFilters.filterGenre}
+                                        onChange={(e) => setRecommendationFilters({
+                                            ...recommendationFilters,
+                                            filterGenre: e.target.value
+                                        })}
+                                    >
+                                        <option value="">Tüm Türler</option>
+                                        {genres.map(genre => (
+                                            <option key={genre} value={genre}>{genre}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Yazar Tipi (Opsiyonel)</label>
+                                    <select
+                                        value={recommendationFilters.filterAuthorType}
+                                        onChange={(e) => setRecommendationFilters({
+                                            ...recommendationFilters,
+                                            filterAuthorType: e.target.value
+                                        })}
+                                    >
+                                        <option value="">Tüm Yazarlar</option>
+                                        <option value="turkish">Türk Yazarlar</option>
+                                        <option value="foreign">Yabancı Yazarlar</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Öneri Sayısı</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="20"
+                                    value={recommendationFilters.numberOfRecommendations}
+                                    onChange={(e) => setRecommendationFilters({
+                                        ...recommendationFilters,
+                                        numberOfRecommendations: parseInt(e.target.value) || 10
+                                    })}
+                                />
+                            </div>
+
+                            <button
+                                className="btn-primary recommend-btn"
+                                onClick={handleGetRecommendations}
+                                disabled={loadingRecommendations}
+                            >
+                                {loadingRecommendations ? (
+                                    <>
+                                        <FaSpinner className="spinner" /> Yükleniyor...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaLightbulb /> Öneri Al
+                                    </>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Öneriler Listesi */}
+                        {recommendations.length > 0 && (
+                            <div className="recommendations-list">
+                                <h3>Size Önerilen Kitaplar ({recommendations.length})</h3>
+                                <div className="recommendations-grid">
+                                    {recommendations.map((book, index) => (
+                                        <div key={index} className="recommendation-card">
+                                            <div className="recommendation-header">
+                                                <h4>{book.title}</h4>
+                                                <span className="similarity-badge">
+                                                    %{(book.similarityScore || book.similarity_score) ? Math.round((book.similarityScore || book.similarity_score) * 100) : 0} eşleşme
+                                                </span>
+                                            </div>
+                                            <p className="recommendation-author">{book.author}</p>
+                                            {book.genre && (
+                                                <span className="recommendation-genre">{book.genre}</span>
+                                            )}
+                                            {book.description && (
+                                                <p className="recommendation-description">{book.description}</p>
+                                            )}
+                                            <div className="recommendation-meta">
+                                                {book.rating > 0 && (
+                                                    <span className="recommendation-rating">
+                                                        <FaStar /> {book.rating.toFixed(1)}
+                                                    </span>
+                                                )}
+                                                {book.pages > 0 && (
+                                                    <span className="recommendation-pages">{book.pages} sayfa</span>
+                                                )}
+                                            </div>
+                                            <button
+                                                className="btn-add-recommendation"
+                                                onClick={() => handleAddRecommendedBook(book)}
+                                            >
+                                                <FaPlus /> Listeme Ekle
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {recommendations.length === 0 && !loadingRecommendations && (
+                            <div className="no-recommendations">
+                                <p>Öneri almak için yukarıdaki filtreleri seçip "Öneri Al" butonuna tıklayın.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
