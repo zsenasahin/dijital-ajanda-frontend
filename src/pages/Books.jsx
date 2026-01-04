@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import UniversalMenu from '../components/UniversalMenu';
 import api from '../services/api';
-import { 
-    FaPlus, 
-    FaEdit, 
-    FaTrash, 
-    FaBook, 
+import {
+    FaPlus,
+    FaEdit,
+    FaTrash,
+    FaBook,
     FaStar,
     FaEye,
-    FaCheckCircle
+    FaCheckCircle,
+    FaSearch,
+    FaFilter
 } from 'react-icons/fa';
 import '../styles/Books.css';
 
@@ -179,9 +181,9 @@ const Books = () => {
 
     const getRatingStars = (rating) => {
         return Array.from({ length: 5 }, (_, i) => (
-            <FaStar 
-                key={i} 
-                className={i < rating ? 'star filled' : 'star empty'} 
+            <FaStar
+                key={i}
+                className={i < rating ? 'star filled' : 'star empty'}
             />
         ));
     };
@@ -189,7 +191,7 @@ const Books = () => {
     const filteredBooks = books.filter(book => {
         const matchesFilter = activeFilter === 'all' || book.status === activeFilter;
         const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            book.author.toLowerCase().includes(searchTerm.toLowerCase());
+            book.author.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
@@ -201,50 +203,83 @@ const Books = () => {
     return (
         <div className="books-container">
             <UniversalMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-            
-            <div className="books-header">
-                <div className="books-title">
-                    <h1>📚 Kitaplığım</h1>
-                    <p>Okuma hedeflerinizi takip edin ve kitaplarınızı organize edin</p>
+
+            {/* Modern Hero Header */}
+            <div className="books-hero">
+                <div className="books-hero-content">
+                    <div className="books-hero-text">
+                        <h1>Kitaplığım</h1>
+                        <p>Okuma yolculuğunuzu yönetin</p>
+                    </div>
+                    <div className="books-hero-stats">
+                        <div className="stat-item">
+                            <span className="stat-number">{books.length}</span>
+                            <span className="stat-label">Toplam Kitap</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-number">{books.filter(b => b.status === 'CurrentlyReading').length}</span>
+                            <span className="stat-label">Okunuyor</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-number">{books.filter(b => b.status === 'Completed').length}</span>
+                            <span className="stat-label">Tamamlandı</span>
+                        </div>
+                    </div>
                 </div>
-                <button className="add-book-btn" onClick={() => handleOpenModal()}>
-                    <FaPlus /> Yeni Kitap
-                </button>
             </div>
 
-            <div className="books-filters">
-                <div className="search-box">
-                    <input
-                        type="text"
-                        placeholder="Kitap veya yazar ara..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+            {/* Modern Toolbar */}
+            <div className="books-toolbar">
+                <div className="toolbar-left">
+                    <div className="search-wrapper">
+                        <FaSearch className="search-icon" />
+                        <input
+                            type="text"
+                            className="search-input"
+                            placeholder="Kitap veya yazar ara..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
-                <div className="filter-buttons">
-                    <button 
-                        className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
-                        onClick={() => setActiveFilter('all')}
-                    >
-                        Tümü ({books.length})
-                    </button>
-                    <button 
-                        className={`filter-btn ${activeFilter === 'ToRead' ? 'active' : ''}`}
-                        onClick={() => setActiveFilter('ToRead')}
-                    >
-                        Okunacak ({books.filter(b => b.status === 'ToRead').length})
-                    </button>
-                    <button 
-                        className={`filter-btn ${activeFilter === 'CurrentlyReading' ? 'active' : ''}`}
-                        onClick={() => setActiveFilter('CurrentlyReading')}
-                    >
-                        Okunuyor ({books.filter(b => b.status === 'CurrentlyReading').length})
-                    </button>
-                    <button 
-                        className={`filter-btn ${activeFilter === 'Completed' ? 'active' : ''}`}
-                        onClick={() => setActiveFilter('Completed')}
-                    >
-                        Tamamlanan ({books.filter(b => b.status === 'Completed').length})
+
+                <div className="toolbar-center">
+                    <div className="filter-segment">
+                        <button
+                            className={`segment-btn ${activeFilter === 'all' ? 'active' : ''}`}
+                            onClick={() => setActiveFilter('all')}
+                        >
+                            <span className="segment-text">Tümü</span>
+                            <span className="segment-count">{books.length}</span>
+                        </button>
+                        <button
+                            className={`segment-btn ${activeFilter === 'ToRead' ? 'active' : ''}`}
+                            onClick={() => setActiveFilter('ToRead')}
+                        >
+                            <span className="segment-text">Okunacak</span>
+                            <span className="segment-count">{books.filter(b => b.status === 'ToRead').length}</span>
+                        </button>
+                        <button
+                            className={`segment-btn ${activeFilter === 'CurrentlyReading' ? 'active' : ''}`}
+                            onClick={() => setActiveFilter('CurrentlyReading')}
+                        >
+                            <span className="segment-text">Okunuyor</span>
+                            <span className="segment-count">{books.filter(b => b.status === 'CurrentlyReading').length}</span>
+                        </button>
+                        <button
+                            className={`segment-btn ${activeFilter === 'Completed' ? 'active' : ''}`}
+                            onClick={() => setActiveFilter('Completed')}
+                        >
+                            <span className="segment-text">Tamamlandı</span>
+                            <span className="segment-count">{books.filter(b => b.status === 'Completed').length}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div className="toolbar-right">
+                    <button className="add-book-btn" onClick={() => handleOpenModal()}>
+                        <FaPlus className="btn-icon" />
+                        <span>Yeni Kitap</span>
                     </button>
                 </div>
             </div>
@@ -261,7 +296,7 @@ const Books = () => {
                                 </div>
                             )}
                         </div>
-                        
+
                         <div className="book-content">
                             <div className="book-header">
                                 <h3 className="book-title">{book.title}</h3>
@@ -272,30 +307,30 @@ const Books = () => {
                             {book.author && (
                                 <p className="book-author">{book.author}</p>
                             )}
-                            
+
                             {book.description && (
                                 <p className="book-description">{book.description}</p>
                             )}
-                            
+
                             <div className="book-meta">
                                 {book.totalPages && (
                                     <span className="book-pages">
                                         <FaBook /> Toplam: {book.totalPages} sayfa
                                     </span>
                                 )}
-                                
+
                                 {book.rating > 0 && (
                                     <div className="book-rating">
                                         {getRatingStars(book.rating)}
                                     </div>
                                 )}
                             </div>
-                            
+
                             {book.status === 'CurrentlyReading' && book.totalPages && (
                                 <div className="reading-progress">
                                     <div className="progress-bar">
-                                        <div 
-                                            className="progress-fill" 
+                                        <div
+                                            className="progress-fill"
                                             style={{ width: `${getReadingProgress(book)}%` }}
                                         ></div>
                                     </div>
@@ -304,7 +339,7 @@ const Books = () => {
                                     </span>
                                 </div>
                             )}
-                            
+
                             {book.status !== 'CurrentlyReading' && book.totalPages && (
                                 <div className="book-total-pages">
                                     <span className="progress-text">
@@ -312,34 +347,34 @@ const Books = () => {
                                     </span>
                                 </div>
                             )}
-                            
+
                             <div className="book-actions">
-                                <button 
+                                <button
                                     className="action-btn primary"
                                     onClick={() => handleOpenModal(book)}
                                 >
                                     <FaEdit /> Düzenle
                                 </button>
-                                
+
                                 {book.status === 'ToRead' && (
-                                    <button 
+                                    <button
                                         className="action-btn success"
                                         onClick={() => handleStatusChange(book.id, 'CurrentlyReading')}
                                     >
                                         <FaEye /> Okumaya Başla
                                     </button>
                                 )}
-                                
+
                                 {book.status === 'CurrentlyReading' && (
-                                    <button 
+                                    <button
                                         className="action-btn success"
                                         onClick={() => handleStatusChange(book.id, 'Completed')}
                                     >
                                         <FaCheckCircle /> Tamamla
                                     </button>
                                 )}
-                                
-                                <button 
+
+                                <button
                                     className="action-btn danger"
                                     onClick={() => handleDelete(book.id)}
                                 >
@@ -365,7 +400,7 @@ const Books = () => {
                 <div className="books-modal-overlay" onClick={handleCloseModal}>
                     <div className="books-modal" onClick={e => e.stopPropagation()}>
                         <h2>{modal.mode === 'add' ? 'Yeni Kitap' : 'Kitabı Düzenle'}</h2>
-                        
+
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Kitap Adı *</label>
@@ -377,7 +412,7 @@ const Books = () => {
                                     required
                                 />
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>Yazar</label>
                                 <input
@@ -388,7 +423,7 @@ const Books = () => {
                                 />
                             </div>
                         </div>
-                        
+
                         <div className="form-row">
                             <div className="form-group">
                                 <label>ISBN</label>
@@ -399,7 +434,7 @@ const Books = () => {
                                     placeholder="ISBN numarası"
                                 />
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>Durum</label>
                                 <select
@@ -413,7 +448,7 @@ const Books = () => {
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Toplam Sayfa</label>
@@ -425,7 +460,7 @@ const Books = () => {
                                     min="0"
                                 />
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>Mevcut Sayfa</label>
                                 <input
@@ -437,7 +472,7 @@ const Books = () => {
                                 />
                             </div>
                         </div>
-                        
+
                         <div className="form-group">
                             <label>Puan</label>
                             <div className="rating-input">
@@ -453,7 +488,7 @@ const Books = () => {
                                 ))}
                             </div>
                         </div>
-                        
+
                         <div className="form-group">
                             <label>Açıklama</label>
                             <textarea
@@ -463,7 +498,7 @@ const Books = () => {
                                 rows="3"
                             />
                         </div>
-                        
+
                         <div className="form-group">
                             <label>Kapak Resmi URL</label>
                             <input
@@ -473,7 +508,7 @@ const Books = () => {
                                 placeholder="https://example.com/cover.jpg"
                             />
                         </div>
-                        
+
                         <div className="form-group">
                             <label>Değerlendirme</label>
                             <textarea
@@ -483,7 +518,7 @@ const Books = () => {
                                 rows="4"
                             />
                         </div>
-                        
+
                         <div className="modal-actions">
                             <button className="btn-secondary" onClick={handleCloseModal}>
                                 İptal

@@ -2,21 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UniversalMenu from '../components/UniversalMenu';
 import api from '../services/api';
-import { 
-    FaPlus, 
-    FaEdit, 
-    FaTrash, 
-    FaCheckCircle, 
-    FaCalendarAlt,
-    FaClock,
-    FaFlag,
-    FaChartLine,
+import {
+    FaPlus,
+    FaEdit,
+    FaTrash,
     FaFire,
-    FaRegCalendarCheck
+    FaTimes
 } from 'react-icons/fa';
 import '../styles/Habits.css';
 
 const MOTIVATION = 'Küçük adımlar, büyük değişimler yaratır.';
+
+// Tatlı simge seti
+const HABIT_ICONS = [
+    { id: 'water', icon: '💧', label: 'Su' },
+    { id: 'book', icon: '📖', label: 'Kitap' },
+    { id: 'run', icon: '🏃', label: 'Koşu' },
+    { id: 'meditation', icon: '🧘', label: 'Meditasyon' },
+    { id: 'pill', icon: '💊', label: 'İlaç' },
+    { id: 'plant', icon: '🌱', label: 'Bitki' },
+    { id: 'write', icon: '✏️', label: 'Yazı' },
+    { id: 'music', icon: '🎵', label: 'Müzik' },
+    { id: 'apple', icon: '🍎', label: 'Beslenme' },
+    { id: 'cloud', icon: '☁️', label: 'Bulut' },
+    { id: 'star', icon: '⭐', label: 'Yıldız' },
+    { id: 'sleep', icon: '💤', label: 'Uyku' },
+    { id: 'target', icon: '🎯', label: 'Hedef' },
+    { id: 'muscle', icon: '💪', label: 'Güç' },
+    { id: 'clean', icon: '🧹', label: 'Temizlik' },
+    { id: 'heart', icon: '❤️', label: 'Sağlık' },
+    { id: 'brain', icon: '🧠', label: 'Beyin' },
+    { id: 'coffee', icon: '☕', label: 'Kahve' },
+];
 
 const Habits = () => {
     const navigate = useNavigate();
@@ -32,12 +49,15 @@ const Habits = () => {
         targetFrequency: 1,
         frequencyUnit: 'day',
         color: '#10b981',
-        icon: '🔄',
+        icon: '💧',
         reminderTime: ''
     });
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [iconPickerOpen, setIconPickerOpen] = useState(false);
+    const [circleOffset, setCircleOffset] = useState({});
+    const [error, setError] = useState(null);
     const userId = parseInt(localStorage.getItem('userId') || '1', 10);
 
     useEffect(() => {
@@ -46,11 +66,71 @@ const Habits = () => {
 
     const loadHabits = async () => {
         try {
+            setError(null);
             const response = await api.get(`/api/Habits/user/${userId}`);
             setHabits(response.data);
         } catch (error) {
             console.error('Error loading habits:', error);
+            setError('Veriler yüklenemedi. Backend bağlantısı koptu veya zaman aşımına uğradı.');
         }
+    };
+
+    // Alışkanlık için günleri hesapla (startDate'den bugüne)
+    const getHabitDays = (habit) => {
+        const days = [];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // startDate yoksa veya geçersizse, son 7 günü göster
+        let startDate = habit.startDate ? new Date(habit.startDate) : null;
+        if (!startDate || isNaN(startDate.getTime())) {
+            startDate = new Date(today);
+            startDate.setDate(startDate.getDate() - 6);
+        }
+        startDate.setHours(0, 0, 0, 0);
+
+        // startDate ile bugün arasındaki gün sayısı
+        const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+        const totalDays = Math.min(diffDays, 365); // Max 1 yıl
+
+        for (let i = totalDays - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            days.push({
+                date: date.toISOString().split('T')[0],
+                dayName: date.toLocaleDateString('tr-TR', { weekday: 'short' }),
+                dayNumber: date.getDate()
+            });
+        }
+        return days;
+    };
+
+    // Görünür günleri al (max 7, offset ile)
+    const getVisibleDays = (habit) => {
+        const allDays = getHabitDays(habit);
+        const offset = circleOffset[habit.id] || 0;
+        const endIdx = allDays.length - offset;
+        const startIdx = Math.max(0, endIdx - 7);
+        return allDays.slice(startIdx, endIdx);
+    };
+
+    const getTotalDays = (habit) => getHabitDays(habit).length;
+
+    const canScrollLeft = (habit) => {
+        const offset = circleOffset[habit.id] || 0;
+        return offset < getTotalDays(habit) - 7;
+    };
+
+    const canScrollRight = (habit) => {
+        const offset = circleOffset[habit.id] || 0;
+        return offset > 0;
+    };
+
+    const scrollCircles = (habitId, direction) => {
+        setCircleOffset(prev => ({
+            ...prev,
+            [habitId]: Math.max(0, (prev[habitId] || 0) + (direction === 'left' ? 7 : -7))
+        }));
     };
 
     const handleOpenModal = (habit = null) => {
@@ -66,7 +146,7 @@ const Habits = () => {
                 targetFrequency: habit.targetFrequency || 1,
                 frequencyUnit: habit.frequencyUnit || 'day',
                 color: habit.color || '#10b981',
-                icon: habit.icon || '🔄',
+                icon: habit.icon || '💧',
                 reminderTime: habit.reminderTime || ''
             });
         } else {
@@ -81,7 +161,7 @@ const Habits = () => {
                 targetFrequency: 1,
                 frequencyUnit: 'day',
                 color: '#10b981',
-                icon: '🔄',
+                icon: '💧',
                 reminderTime: ''
             });
         }
@@ -89,6 +169,7 @@ const Habits = () => {
 
     const handleCloseModal = () => {
         setModal({ open: false, mode: 'add', habitId: null });
+        setIconPickerOpen(false);
     };
 
     const handleSubmit = async () => {
@@ -132,31 +213,64 @@ const Habits = () => {
         }
     };
 
-    const handleCompleteHabit = async (habitId) => {
+    const handleToggleDay = async (habitId, date) => {
+        const habit = habits.find(h => h.id === habitId);
+        const hasCompletion = habit?.completions?.some(c =>
+            (c.completedAt || c.date || '').split('T')[0] === date
+        );
+
         try {
-            await api.post(`/api/Habits/${habitId}/complete`, {
-                date: new Date().toISOString(),
-                count: 1,
-                notes: ''
-            });
+            if (hasCompletion) {
+                // Silme işlemi - completion'ı bul ve sil
+                const completion = habit.completions.find(c =>
+                    (c.completedAt || c.date || '').split('T')[0] === date
+                );
+                if (completion) {
+                    await api.delete(`/api/Habits/${habitId}/completion/${completion.id}`);
+                }
+            } else {
+                // Ekleme işlemi
+                await api.post(`/api/Habits/${habitId}/complete`, {
+                    date: new Date(date).toISOString(),
+                    count: 1,
+                    notes: ''
+                });
+            }
             await loadHabits();
         } catch (error) {
-            console.error('Error completing habit:', error);
-            const errorMessage = error.response?.data?.message || error.response?.data || 'Alışkanlık tamamlanırken bir hata oluştu';
-            alert(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage, null, 2));
+            console.error('Error toggling habit:', error);
         }
     };
 
-    const getCategoryColor = (category) => {
-        switch (category) {
-            case 'Personal': return '#10b981';
-            case 'Health': return '#3b82f6';
-            case 'Work': return '#f59e0b';
-            case 'Learning': return '#8b5cf6';
-            case 'Fitness': return '#ef4444';
-            case 'Mindfulness': return '#06b6d4';
-            default: return '#6b7280';
+    const isCompleted = (habit, date) => {
+        return habit.completions?.some(c =>
+            (c.completedAt || c.date || '').split('T')[0] === date
+        );
+    };
+
+    const getStreak = (habit) => {
+        if (!habit.completions || habit.completions.length === 0) return 0;
+
+        const sortedCompletions = habit.completions
+            .sort((a, b) => new Date(b.completedAt || b.date) - new Date(a.completedAt || a.date));
+
+        let streak = 0;
+        let currentDate = new Date();
+
+        for (let i = 0; i < 365; i++) {
+            const dateStr = currentDate.toISOString().split('T')[0];
+            const hasCompletion = sortedCompletions.some(c => (c.completedAt || c.date || '').split('T')[0] === dateStr);
+
+            if (hasCompletion) {
+                streak++;
+            } else {
+                break;
+            }
+
+            currentDate.setDate(currentDate.getDate() - 1);
         }
+
+        return streak;
     };
 
     const getCategoryText = (category) => {
@@ -171,209 +285,126 @@ const Habits = () => {
         }
     };
 
-    const getTypeText = (type) => {
-        switch (type) {
-            case 'Daily': return 'Günlük';
-            case 'Weekly': return 'Haftalık';
-            case 'Monthly': return 'Aylık';
-            case 'Custom': return 'Özel';
-            default: return type;
-        }
-    };
-
-    const getTodayCompletions = (habit) => {
-        const today = new Date().toISOString().split('T')[0];
-        return habit.completions?.filter(c => (c.completedAt || c.date || '').split('T')[0] === today).length || 0;
-    };
-
-    const getStreak = (habit) => {
-        if (!habit.completions || habit.completions.length === 0) return 0;
-        
-        const sortedCompletions = habit.completions
-            .sort((a, b) => new Date(b.completedAt || b.date) - new Date(a.completedAt || a.date));
-        
-        let streak = 0;
-        let currentDate = new Date();
-        
-        for (let i = 0; i < 30; i++) { // Check last 30 days
-            const dateStr = currentDate.toISOString().split('T')[0];
-            const hasCompletion = sortedCompletions.some(c => (c.completedAt || c.date || '').split('T')[0] === dateStr);
-            
-            if (hasCompletion) {
-                streak++;
-            } else {
-                break;
-            }
-            
-            currentDate.setDate(currentDate.getDate() - 1);
-        }
-        
-        return streak;
-    };
-
     const filteredHabits = habits.filter(habit => {
         const matchesFilter = activeFilter === 'all' || habit.category === activeFilter;
         const matchesSearch = habit.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            habit.description?.toLowerCase().includes(searchTerm.toLowerCase());
+            habit.description?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
-    const habitTypes = ['Daily', 'Weekly', 'Monthly', 'Custom'];
     const habitCategories = ['Personal', 'Health', 'Work', 'Learning', 'Fitness', 'Mindfulness', 'Other'];
+    const habitTypes = ['Daily', 'Weekly', 'Monthly', 'Custom'];
     const frequencyUnits = ['day', 'week', 'month'];
 
     return (
         <div className="habits-container">
             <UniversalMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-            
-            <div className="habits-header">
-                <div className="habits-title">
-                    <h1>🔄 Alışkanlıklarım</h1>
-                    <p>{MOTIVATION}</p>
-                </div>
-                <button className="add-habit-btn" onClick={() => handleOpenModal()}>
-                    <FaPlus /> Yeni Alışkanlık
-                </button>
-            </div>
 
-            <div className="habits-stats">
-                <div className="stat-item">
-                    <span className="stat-number">{habits.length}</span>
-                    <span className="stat-label">Toplam Alışkanlık</span>
+            {error && (
+                <div style={{ padding: '15px', background: '#fee2e2', color: '#dc2626', borderRadius: '12px', marginBottom: '20px', textAlign: 'center', border: '1px solid #fca5a5' }}>
+                    ⚠️ {error}
                 </div>
-                <div className="stat-item">
-                    <span className="stat-number">
-                        {habits.filter(h => getTodayCompletions(h) > 0).length}
-                    </span>
-                    <span className="stat-label">Bugün Tamamlanan</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-number">
-                        {Math.max(...habits.map(h => getStreak(h)), 0)}
-                    </span>
-                    <span className="stat-label">En Uzun Seri</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-number">
-                        {habits.filter(h => h.isActive).length}
-                    </span>
-                    <span className="stat-label">Aktif</span>
-                </div>
-            </div>
+            )}
 
-            <div className="habits-filters">
-                <div className="search-box">
-                    <input
-                        type="text"
-                        placeholder="Alışkanlık ara..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-                <div className="filter-buttons">
-                    <button 
-                        className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
-                        onClick={() => setActiveFilter('all')}
-                    >
-                        Tümü ({habits.length})
+            {/* Hero Header */}
+            <div className="habits-hero">
+                <div className="habits-hero-content">
+                    <div className="habits-hero-text">
+                        <h1>Alışkanlıklarım</h1>
+                        <p>{MOTIVATION}</p>
+                    </div>
+                    <div className="habits-hero-stats">
+                        <div className="hero-stat">
+                            <span className="hero-stat-number">{habits.length}</span>
+                            <span className="hero-stat-label">Toplam</span>
+                        </div>
+                        <div className="hero-stat">
+                            <span className="hero-stat-number">
+                                {habits.filter(h => isCompleted(h, new Date().toISOString().split('T')[0])).length}
+                            </span>
+                            <span className="hero-stat-label">Bugün</span>
+                        </div>
+                        <div className="hero-stat fire">
+                            <span className="hero-stat-number">
+                                {Math.max(...habits.map(h => getStreak(h)), 0)}
+                            </span>
+                            <span className="hero-stat-label">🔥 Seri</span>
+                        </div>
+                    </div>
+                    <button className="add-habit-btn" onClick={() => handleOpenModal()}>
+                        <FaPlus /> Yeni Alışkanlık
                     </button>
-                    {habitCategories.map(category => (
-                        <button 
-                            key={category}
-                            className={`filter-btn ${activeFilter === category ? 'active' : ''}`}
-                            onClick={() => setActiveFilter(category)}
-                        >
-                            {getCategoryText(category)} ({habits.filter(h => h.category === category).length})
-                        </button>
-                    ))}
                 </div>
             </div>
 
-            <div className="habits-grid">
+            {/* Alışkanlık Listesi - Yuvarlak Halkalar */}
+            <div className="habits-list">
                 {filteredHabits.map(habit => (
-                    <div key={habit.id} className="habit-card">
-                        <div className="habit-header">
-                            <div className="habit-icon" style={{ backgroundColor: habit.color }}>
+                    <div key={habit.id} className="habit-row">
+                        <div className="habit-info">
+                            <div
+                                className="habit-icon-circle"
+                                style={{ backgroundColor: habit.color }}
+                            >
                                 {habit.icon}
                             </div>
-                            <div className="habit-actions">
-                                <button
-                                    className="habit-action-btn"
-                                    onClick={() => handleOpenModal(habit)}
-                                >
-                                    <FaEdit />
-                                </button>
-                                <button
-                                    className="habit-action-btn delete"
-                                    onClick={() => handleDelete(habit.id)}
-                                >
-                                    <FaTrash />
-                                </button>
+                            <div className="habit-details">
+                                <h3>{habit.title}</h3>
+                                <div className="habit-meta-info">
+                                    <span className="streak-badge">
+                                        <FaFire /> {getStreak(habit)} gün
+                                    </span>
+                                    <span className="category-badge">
+                                        {getCategoryText(habit.category)}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div className="habit-content">
-                            <h3 className="habit-title">{habit.title}</h3>
-                            {habit.description && (
-                                <p className="habit-description">{habit.description}</p>
+
+                        {/* Haftalık Yuvarlak Halkalar - Kaydırmalı */}
+                        <div className="habit-circles-container">
+                            {canScrollLeft(habit) && (
+                                <button className="circle-nav-btn left" onClick={() => scrollCircles(habit.id, 'left')}>◀</button>
                             )}
-                            
-                            <div className="habit-meta">
-                                <div className="habit-type">
-                                    <FaClock />
-                                    <span>{getTypeText(habit.type)}</span>
-                                </div>
-                                <div className="habit-category">
-                                    <FaFlag style={{ color: getCategoryColor(habit.category) }} />
-                                    <span>{getCategoryText(habit.category)}</span>
-                                </div>
-                                <div className="habit-frequency">
-                                    <FaRegCalendarCheck />
-                                    <span>{habit.targetFrequency}x {habit.frequencyUnit === 'day' ? 'gün' : habit.frequencyUnit === 'week' ? 'hafta' : 'ay'}</span>
-                                </div>
+                            <div className="habit-week-circles">
+                                {getVisibleDays(habit).map(day => (
+                                    <div key={day.date} className="day-circle-wrapper">
+                                        <span className="day-label">{day.dayName}</span>
+                                        <button
+                                            className={`day-circle ${isCompleted(habit, day.date) ? 'completed' : ''}`}
+                                            style={{
+                                                borderColor: habit.color,
+                                                backgroundColor: isCompleted(habit, day.date) ? habit.color : 'transparent'
+                                            }}
+                                            onClick={() => handleToggleDay(habit.id, day.date)}
+                                        >
+                                            {isCompleted(habit, day.date) && (
+                                                <span className="circle-icon">{habit.icon}</span>
+                                            )}
+                                        </button>
+                                        <span className="day-number">{day.dayNumber}</span>
+                                    </div>
+                                ))}
                             </div>
-                            
-                            <div className="habit-progress">
-                                <div className="progress-header">
-                                    <span>Bugün</span>
-                                    <span>{getTodayCompletions(habit)} / {habit.targetFrequency}</span>
-                                </div>
-                                <div className="progress-bar">
-                                    <div 
-                                        className="progress-fill" 
-                                        style={{ 
-                                            width: `${Math.min(100, (getTodayCompletions(habit) / habit.targetFrequency) * 100)}%`,
-                                            backgroundColor: getTodayCompletions(habit) >= habit.targetFrequency ? '#10b981' : '#f59e0b'
-                                        }}
-                                    ></div>
-                                </div>
-                            </div>
-                            
-                            <div className="habit-stats">
-                                <div className="stat">
-                                    <FaFire style={{ color: '#f59e0b' }} />
-                                    <span>{getStreak(habit)} gün seri</span>
-                                </div>
-                                <div className="stat">
-                                    <FaChartLine style={{ color: '#3b82f6' }} />
-                                    <span>{habit.completions?.length || 0} toplam</span>
-                                </div>
-                            </div>
-                            
-                            <div className="habit-actions">
-                                {getTodayCompletions(habit) < habit.targetFrequency ? (
-                                    <button 
-                                        className="action-btn primary"
-                                        onClick={() => handleCompleteHabit(habit.id)}
-                                    >
-                                        <FaCheckCircle /> Tamamla
-                                    </button>
-                                ) : (
-                                    <button className="action-btn success" disabled>
-                                        <FaCheckCircle /> Bugün Tamamlandı
-                                    </button>
-                                )}
-                            </div>
+                            {canScrollRight(habit) && (
+                                <button className="circle-nav-btn right" onClick={() => scrollCircles(habit.id, 'right')}>▶</button>
+                            )}
+                        </div>
+
+                        {/* Aksiyonlar */}
+                        <div className="habit-row-actions">
+                            <button
+                                className="habit-action-btn"
+                                onClick={() => handleOpenModal(habit)}
+                            >
+                                <FaEdit />
+                            </button>
+                            <button
+                                className="habit-action-btn delete"
+                                onClick={() => handleDelete(habit.id)}
+                            >
+                                <FaTrash />
+                            </button>
                         </div>
                     </div>
                 ))}
@@ -392,42 +423,70 @@ const Habits = () => {
             {modal.open && (
                 <div className="habits-modal-overlay" onClick={handleCloseModal}>
                     <div className="habits-modal" onClick={e => e.stopPropagation()}>
-                        <h2>{modal.mode === 'add' ? 'Yeni Alışkanlık' : 'Alışkanlığı Düzenle'}</h2>
-                        
+                        <div className="modal-header">
+                            <h2>{modal.mode === 'add' ? 'Yeni Alışkanlık' : 'Alışkanlığı Düzenle'}</h2>
+                            <button className="modal-close-btn" onClick={handleCloseModal}>
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        {/* Simge Seçici */}
+                        <div className="form-group">
+                            <label>Simge Seç</label>
+                            <div className="icon-preview-wrapper">
+                                <button
+                                    type="button"
+                                    className="icon-preview-btn"
+                                    style={{ backgroundColor: formData.color }}
+                                    onClick={() => setIconPickerOpen(!iconPickerOpen)}
+                                >
+                                    {formData.icon}
+                                </button>
+                                <span className="icon-hint">Tıklayarak simge seç</span>
+                            </div>
+
+                            {iconPickerOpen && (
+                                <div className="icon-picker-grid">
+                                    {HABIT_ICONS.map(item => (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            className={`icon-picker-item ${formData.icon === item.icon ? 'selected' : ''}`}
+                                            onClick={() => {
+                                                setFormData({ ...formData, icon: item.icon });
+                                                setIconPickerOpen(false);
+                                            }}
+                                        >
+                                            <span className="picker-icon">{item.icon}</span>
+                                            <span className="picker-label">{item.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <div className="form-group">
                             <label>Alışkanlık Adı *</label>
                             <input
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                placeholder="Alışkanlık adı"
+                                placeholder="Örn: Günde 8 bardak su iç"
                                 required
                             />
                         </div>
-                        
+
                         <div className="form-group">
                             <label>Açıklama</label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Alışkanlık açıklaması"
-                                rows="3"
+                                rows="2"
                             />
                         </div>
-                        
+
                         <div className="form-row">
-                            <div className="form-group">
-                                <label>Tip</label>
-                                <select
-                                    value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                >
-                                    {habitTypes.map(type => (
-                                        <option key={type} value={type}>{getTypeText(type)}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            
                             <div className="form-group">
                                 <label>Kategori</label>
                                 <select
@@ -439,8 +498,55 @@ const Habits = () => {
                                     ))}
                                 </select>
                             </div>
+
+                            <div className="form-group">
+                                <label>Renk</label>
+                                <div className="color-picker-wrapper">
+                                    <input
+                                        type="color"
+                                        value={formData.color}
+                                        onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                                    />
+                                    <span className="color-preview" style={{ backgroundColor: formData.color }}></span>
+                                </div>
+                            </div>
                         </div>
-                        
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Tür</label>
+                                <select
+                                    value={formData.type}
+                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                >
+                                    {habitTypes.map(type => (
+                                        <option key={type} value={type}>
+                                            {type === 'Daily' ? 'Günlük' : type === 'Weekly' ? 'Haftalık' : type === 'Monthly' ? 'Aylık' : 'Özel'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Hedef Sıklık</label>
+                                <div className="frequency-input">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={formData.targetFrequency}
+                                        onChange={(e) => setFormData({ ...formData, targetFrequency: parseInt(e.target.value) || 1 })}
+                                    />
+                                    <select
+                                        value={formData.frequencyUnit}
+                                        onChange={(e) => setFormData({ ...formData, frequencyUnit: e.target.value })}
+                                    >
+                                        <option value="day">/ gün</option>
+                                        <option value="week">/ hafta</option>
+                                        <option value="month">/ ay</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Başlangıç Tarihi</label>
@@ -450,7 +556,6 @@ const Habits = () => {
                                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                                 />
                             </div>
-                            
                             <div className="form-group">
                                 <label>Bitiş Tarihi (Opsiyonel)</label>
                                 <input
@@ -460,65 +565,16 @@ const Habits = () => {
                                 />
                             </div>
                         </div>
-                        
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Hedef Sıklık</label>
-                                <input
-                                    type="number"
-                                    value={formData.targetFrequency}
-                                    onChange={(e) => setFormData({ ...formData, targetFrequency: parseInt(e.target.value) })}
-                                    placeholder="1"
-                                    min="1"
-                                />
-                            </div>
-                            
-                            <div className="form-group">
-                                <label>Frekans Birimi</label>
-                                <select
-                                    value={formData.frequencyUnit}
-                                    onChange={(e) => setFormData({ ...formData, frequencyUnit: e.target.value })}
-                                >
-                                    {frequencyUnits.map(unit => (
-                                        <option key={unit} value={unit}>
-                                            {unit === 'day' ? 'Gün' : unit === 'week' ? 'Hafta' : 'Ay'}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Renk</label>
-                                <input
-                                    type="color"
-                                    value={formData.color}
-                                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                                />
-                            </div>
-                            
-                            <div className="form-group">
-                                <label>İkon</label>
-                                <input
-                                    type="text"
-                                    value={formData.icon}
-                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                    placeholder="🔄"
-                                />
-                            </div>
-                        </div>
-                        
+
                         <div className="form-group">
-                            <label>Hatırlatma Saati (HH:MM)</label>
+                            <label>Hatırlatma Saati</label>
                             <input
                                 type="time"
                                 value={formData.reminderTime}
                                 onChange={(e) => setFormData({ ...formData, reminderTime: e.target.value })}
-                                placeholder="09:00"
                             />
                         </div>
-                        
+
                         <div className="modal-actions">
                             <button className="btn-secondary" onClick={handleCloseModal}>
                                 İptal
@@ -534,4 +590,4 @@ const Habits = () => {
     );
 };
 
-export default Habits; 
+export default Habits;

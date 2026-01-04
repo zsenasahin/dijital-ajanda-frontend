@@ -1,0 +1,557 @@
+.finance-container {
+    min-height: 100vh;
+    background: var(--theme-background);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    position: relative;
+}
+
+.finance-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 0;
+}
+
+.finance-hero,
+.summary-cards,
+.finance-tabs,
+.transactions-list,
+.period-summary {
+    position: relative;
+    z-index: 1;
+}
+
+/* Hero */
+.finance-hero {
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+}
+
+.finance-hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.finance-hero-text h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--card-text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.finance-hero-text p {
+    color: var(--card-text-secondary);
+    margin: 0;
+}
+
+.finance-quick-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-action-btn.income {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.quick-action-btn.expense {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Summary Cards */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+}
+
+.summary-card .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+}
+
+.income-card .card-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.expense-card .card-icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.balance-card.positive .card-icon {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.balance-card.negative .card-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-label {
+    font-size: 0.8rem;
+    color: var(--card-text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.card-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--card-text-primary);
+}
+
+/* Tabs */
+.finance-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    padding: 0.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--card-text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #667eea;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Transactions List */
+.transactions-list {
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+}
+
+.transactions-list h3 {
+    margin: 0 0 1rem 0;
+    color: var(--card-text-primary);
+    font-size: 1.1rem;
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.transaction-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.transaction-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.transaction-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.transaction-category {
+    font-weight: 600;
+    color: var(--card-text-primary);
+}
+
+.transaction-desc {
+    font-size: 0.85rem;
+    color: var(--card-text-secondary);
+}
+
+.transaction-date {
+    font-size: 0.75rem;
+    color: var(--card-text-secondary);
+}
+
+.transaction-amount {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.transaction-amount span {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.transaction-amount span.income {
+    color: #10b981;
+}
+
+.transaction-amount span.expense {
+    color: #ef4444;
+}
+
+.delete-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.no-transactions {
+    text-align: center;
+    padding: 2rem;
+    color: var(--card-text-secondary);
+}
+
+/* Period Summary */
+.period-summary {
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+}
+
+.period-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.period-header h3 {
+    margin: 0;
+    color: var(--card-text-primary);
+}
+
+.period-date {
+    color: var(--card-text-secondary);
+    font-size: 0.9rem;
+}
+
+.period-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.period-stat {
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.period-stat.income {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.period-stat.expense {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.period-stat.balance.positive {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.period-stat.balance.negative {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--card-text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--card-text-primary);
+}
+
+.comparison {
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.comparison.up {
+    color: #10b981;
+}
+
+.comparison.down {
+    color: #ef4444;
+}
+
+/* Category Breakdown */
+.category-breakdown h4 {
+    margin: 0 0 1rem 0;
+    color: var(--card-text-primary);
+    font-size: 1rem;
+}
+
+.breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.breakdown-icon {
+    font-size: 1.25rem;
+}
+
+.breakdown-name {
+    flex: 1;
+    color: var(--card-text-primary);
+}
+
+.breakdown-amount {
+    font-weight: 600;
+    color: var(--card-text-primary);
+}
+
+/* Modal */
+.finance-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.finance-modal {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 450px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.finance-modal h2 {
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.category-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+}
+
+.category-btn:hover {
+    border-color: var(--cat-color);
+}
+
+.category-btn.selected {
+    border-color: var(--cat-color);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.category-btn span:first-child {
+    font-size: 1.25rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-secondary,
+.btn-primary {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .finance-hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .period-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

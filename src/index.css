@@ -1,3 +1,63 @@
+:root {
+  --bg-primary: #ffffff;
+  --text-primary: #222222;
+  --sidebar-bg: #f7f6f3;
+  --menu-item-hover: #2eaadc;
+  --menu-text: #222;
+  --menu-header-color: #2eaadc;
+  --border-color: #e6e6e6;
+  --icon-color: #222;
+
+  /* Glassmorphism Variables */
+  --glass-bg: rgba(255, 255, 255, 0.18);
+  --glass-border: rgba(56, 249, 215, 0.13);
+  --glass-text-header: #222;
+  --glass-text-body: #444;
+  --modal-bg: rgba(255, 255, 255, 0.98);
+  --modal-text: #222;
+
+  /* Card Variables (Dashboard & Global) */
+  --card-bg: rgba(255, 255, 255, 0.6);
+  --card-backdrop: blur(12px);
+  --card-border: 1px solid rgba(255, 255, 255, 0.4);
+  --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --card-text-primary: #1a1a1a;
+  --card-text-secondary: #4a4a4a;
+
+  /* Page Backgrounds */
+  --theme-background: url('./assets/pexels-tara-winstead-8383495.jpg');
+}
+
+[data-theme='dark'] {
+  --bg-primary: #121212;
+  --text-primary: #e0e0e0;
+  --sidebar-bg: #1e1e1e;
+  --menu-item-hover: #3cbbec;
+  --menu-text: #e0e0e0;
+  --menu-header-color: #3cbbec;
+  --border-color: #333;
+  --icon-color: #e0e0e0;
+
+  /* Glassmorphism Variables */
+  --glass-bg: rgba(0, 0, 0, 0.6);
+  --glass-border: rgba(56, 249, 215, 0.3);
+  --glass-text-header: #fff;
+  --glass-text-body: #ccc;
+  --modal-bg: #2d2d2d;
+  --modal-text: #e0e0e0;
+
+  /* Card Variables (Dashboard & Global) */
+  --card-bg: rgba(30, 30, 30, 0.6);
+  --card-backdrop: blur(12px);
+  --card-border: 1px solid rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --card-text-primary: #ffffff;
+  --card-text-secondary: #cccccc;
+
+  /* Page Backgrounds */
+  --theme-background: url('./assets/mountains-8031511_1920.jpg');
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,6 +65,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 code {

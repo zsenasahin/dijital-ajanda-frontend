@@ -52,11 +52,25 @@ const ProfilePage = () => {
     const [editedProfile, setEditedProfile] = useState({});
     const [loading, setLoading] = useState(true);
     const [days, setDays] = useState(30);
+    const [badges, setBadges] = useState([]);
 
     useEffect(() => {
         loadProfileData();
         loadMoodHistory();
+        loadBadges();
     }, [userId, days]);
+
+    const loadBadges = async () => {
+        try {
+            // Önce rozet kontrolü yap
+            await api.post(`/api/Badges/check/${userId}`);
+            // Sonra kullanıcının rozetlerini yükle
+            const response = await api.get(`/api/Badges/user/${userId}`);
+            setBadges(response.data);
+        } catch (error) {
+            console.error('Error loading badges:', error);
+        }
+    };
 
     const loadProfileData = async () => {
         try {
@@ -72,13 +86,13 @@ const ProfilePage = () => {
         try {
             setLoading(true);
             const response = await api.get(`/api/Profile/mood-history/${userId}?days=${days}`);
-            
+
             // Grafik için veriyi formatla
             const formattedHistory = response.data.history.map(item => ({
                 ...item,
-                date: new Date(item.date).toLocaleDateString('tr-TR', { 
-                    day: '2-digit', 
-                    month: 'short' 
+                date: new Date(item.date).toLocaleDateString('tr-TR', {
+                    day: '2-digit',
+                    month: 'short'
                 }),
                 fullDate: new Date(item.date).toLocaleDateString('tr-TR', {
                     weekday: 'long',
@@ -176,7 +190,7 @@ const ProfilePage = () => {
                                 type="text"
                                 placeholder="Avatar URL"
                                 value={editedProfile.avatar || ''}
-                                onChange={(e) => setEditedProfile({...editedProfile, avatar: e.target.value})}
+                                onChange={(e) => setEditedProfile({ ...editedProfile, avatar: e.target.value })}
                                 className="avatar-input"
                             />
                         )}
@@ -189,13 +203,13 @@ const ProfilePage = () => {
                                     type="text"
                                     placeholder="Görünen İsim"
                                     value={editedProfile.displayName || ''}
-                                    onChange={(e) => setEditedProfile({...editedProfile, displayName: e.target.value})}
+                                    onChange={(e) => setEditedProfile({ ...editedProfile, displayName: e.target.value })}
                                     className="name-input"
                                 />
                                 <textarea
                                     placeholder="Biyografi..."
                                     value={editedProfile.bio || ''}
-                                    onChange={(e) => setEditedProfile({...editedProfile, bio: e.target.value})}
+                                    onChange={(e) => setEditedProfile({ ...editedProfile, bio: e.target.value })}
                                     className="bio-input"
                                 />
                             </>
@@ -230,12 +244,32 @@ const ProfilePage = () => {
                 </div>
             </div>
 
+            {/* Rozetler Bölümü */}
+            {badges.length > 0 && (
+                <div className="badges-section">
+                    <h2 className="section-title">🏆 Rozetlerim</h2>
+                    <div className="badges-grid">
+                        {badges.map(ub => (
+                            <div
+                                key={ub.id}
+                                className="badge-item"
+                                title={ub.badge?.description}
+                                style={{ borderColor: ub.badge?.color }}
+                            >
+                                <span className="badge-icon">{ub.badge?.icon}</span>
+                                <span className="badge-name">{ub.badge?.description}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Mood Summary Cards */}
             <div className="mood-summary-section">
                 <h2 className="section-title">
                     <FaChartArea /> Duygu Durum Özeti
                 </h2>
-                
+
                 <div className="mood-summary-cards">
                     <div className="summary-card total-card">
                         <div className="card-icon">
@@ -287,12 +321,12 @@ const ProfilePage = () => {
                             <span className="label-positive">😊 Pozitif</span>
                         </div>
                         <div className="score-track">
-                            <div 
-                                className="score-indicator" 
-                                style={{ 
+                            <div
+                                className="score-indicator"
+                                style={{
                                     left: `${moodSummary.averageScore * 100}%`,
-                                    backgroundColor: moodSummary.averageScore >= 0.6 ? '#10b981' : 
-                                                    moodSummary.averageScore <= 0.4 ? '#ef4444' : '#f59e0b'
+                                    backgroundColor: moodSummary.averageScore >= 0.6 ? '#10b981' :
+                                        moodSummary.averageScore <= 0.4 ? '#ef4444' : '#f59e0b'
                                 }}
                             />
                         </div>
@@ -310,8 +344,8 @@ const ProfilePage = () => {
                         <FaCalendarAlt /> Duygu Durum Grafiği
                     </h2>
                     <div className="chart-controls">
-                        <select 
-                            value={days} 
+                        <select
+                            value={days}
                             onChange={(e) => setDays(Number(e.target.value))}
                             className="days-select"
                         >
@@ -348,18 +382,18 @@ const ProfilePage = () => {
                                         <stop offset={off} stopColor="#ef4444" stopOpacity={0.8} />
                                     </linearGradient>
                                     <linearGradient id="colorPositive" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.1} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                                <XAxis 
-                                    dataKey="date" 
+                                <XAxis
+                                    dataKey="date"
                                     stroke="#94a3b8"
                                     tick={{ fill: '#94a3b8', fontSize: 12 }}
                                 />
-                                <YAxis 
-                                    domain={[0, 1]} 
+                                <YAxis
+                                    domain={[0, 1]}
                                     tickFormatter={(value) => `${Math.round(value * 100)}%`}
                                     stroke="#94a3b8"
                                     tick={{ fill: '#94a3b8', fontSize: 12 }}
@@ -373,14 +407,14 @@ const ProfilePage = () => {
                                     stroke="#667eea"
                                     strokeWidth={3}
                                     fill="url(#splitColor)"
-                                    dot={{ 
-                                        fill: '#667eea', 
-                                        strokeWidth: 2, 
+                                    dot={{
+                                        fill: '#667eea',
+                                        strokeWidth: 2,
                                         r: 4,
                                         stroke: '#fff'
                                     }}
-                                    activeDot={{ 
-                                        r: 8, 
+                                    activeDot={{
+                                        r: 8,
                                         stroke: '#667eea',
                                         strokeWidth: 2,
                                         fill: '#fff'
@@ -428,8 +462,8 @@ const ProfilePage = () => {
                     <span>AI Destekli Analiz</span>
                 </div>
                 <p>
-                    Duygu durum analizleri, günlük yazılarınızdaki kelimeler ve ifadeler 
-                    kullanılarak yapay zeka tarafından otomatik olarak hesaplanır. 
+                    Duygu durum analizleri, günlük yazılarınızdaki kelimeler ve ifadeler
+                    kullanılarak yapay zeka tarafından otomatik olarak hesaplanır.
                     Bu analiz, genel ruh halinizi takip etmenize yardımcı olur.
                 </p>
             </div>

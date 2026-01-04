@@ -3,55 +3,160 @@
   top: 18px;
   left: 18px;
   z-index: 1200;
-  background: rgba(255,255,255,0.85);
+  background: var(--bg-primary);
+  /* Changed to variable */
   border-radius: 50%;
   padding: 7px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  /* Slightly darker shadow for visibility in dark mode */
+  transition: background 0.3s, box-shadow 0.3s;
 }
+
 .menu-icon:hover {
-  background: #e6e6e6;
+  background: var(--border-color);
+  /* Changed to variable */
 }
+
+/* Update SVG stroke handling via parent or props if needed, or rely on JS passing color */
 
 .side-menu {
   position: fixed;
-  top: 0; left: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
   width: 240px;
-  background: #f7f6f3;
-  box-shadow: 2px 0 16px rgba(0,0,0,0.08);
+  background: var(--sidebar-bg);
+  /* Changed to variable */
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
   z-index: 1300;
   display: flex;
   flex-direction: column;
-  animation: slideInMenu 0.25s cubic-bezier(.4,0,.2,1);
+  animation: slideInMenu 0.25s cubic-bezier(.4, 0, .2, 1);
+  color: var(--menu-text);
+  /* Changed to variable */
+  transition: background 0.3s, color 0.3s;
 }
+
 @keyframes slideInMenu {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
+
 .side-menu-header {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #2eaadc;
+  color: var(--menu-header-color);
+  /* Changed to variable */
   padding: 22px 24px 12px 24px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--border-color);
+  /* Changed to variable */
 }
+
 .side-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
   margin-top: 18px;
+  flex-grow: 1;
+  /* Allow list to take available space */
 }
+
 .side-menu li {
   padding: 12px 28px;
   font-size: 1.08rem;
-  color: #222;
+  color: var(--menu-text);
+  /* Changed to variable */
   font-weight: 500;
   cursor: pointer;
   border-radius: 6px;
   transition: background 0.2s, color 0.2s;
+  margin: 0 10px;
+  /* Add some spacing */
 }
+
 .side-menu li:hover {
-  background: #2eaadc;
+  background: var(--menu-item-hover);
+  /* Changed to variable */
   color: #fff;
-} 
+}
+
+/* Toggle Switch Styles */
+.theme-toggle-container {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.theme-label {
+  font-weight: 600;
+  color: var(--menu-text);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked+.slider {
+  background-color: #2eaadc;
+}
+
+input:focus+.slider {
+  box-shadow: 0 0 1px #2eaadc;
+}
+
+input:checked+.slider:before {
+  -webkit-transform: translateX(24px);
+  -ms-transform: translateX(24px);
+  transform: translateX(24px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

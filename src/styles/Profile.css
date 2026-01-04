@@ -1,7 +1,11 @@
 /* Profile Page Styles */
 .profile-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    background: var(--theme-background);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     padding: 2rem;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #fff;
@@ -16,12 +20,13 @@
     display: flex;
     gap: 2rem;
     align-items: flex-start;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
     border-radius: 24px;
     padding: 2.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: var(--card-border);
+    box-shadow: var(--card-shadow);
 }
 
 .profile-avatar-section {
@@ -80,10 +85,8 @@
     font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
-    background: linear-gradient(90deg, #fff, #e0e0e0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    margin: 0 0 0.5rem 0;
+    color: var(--card-text-primary);
 }
 
 .name-input {
@@ -175,6 +178,46 @@
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* Badges Section */
+.badges-section {
+    margin-bottom: 3rem;
+}
+
+.badges-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.badge-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
+    border-radius: 16px;
+    padding: 0.75rem 1.25rem;
+    border: 2px solid;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+}
+
+.badge-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.badge-icon {
+    font-size: 1.5rem;
+}
+
+.badge-name {
+    font-size: 0.85rem;
+    color: var(--card-text-primary);
+    font-weight: 500;
+}
+
 /* Mood Summary Section */
 .mood-summary-section {
     margin-bottom: 3rem;
@@ -202,14 +245,15 @@
 }
 
 .summary-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
     border-radius: 20px;
     padding: 1.5rem;
     display: flex;
     align-items: center;
     gap: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: var(--card-border);
     transition: all 0.3s ease;
 }
 
@@ -252,22 +296,24 @@
 
 .card-value {
     font-size: 2rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: white;
+    color: var(--card-text-primary);
 }
 
 .card-label {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--card-text-secondary);
 }
 
 /* Average Score Bar */
 .average-score-section {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
     border-radius: 20px;
     padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: var(--card-border);
 }
 
 .average-score-bar {
@@ -283,9 +329,17 @@
     color: rgba(255, 255, 255, 0.7);
 }
 
-.label-negative { color: #ef4444; }
-.label-neutral { color: #f59e0b; }
-.label-positive { color: #10b981; }
+.label-negative {
+    color: #ef4444;
+}
+
+.label-neutral {
+    color: #f59e0b;
+}
+
+.label-positive {
+    color: #10b981;
+}
 
 .score-track {
     height: 12px;
@@ -320,12 +374,13 @@
 
 /* Mood Chart Section */
 .mood-chart-section {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
     border-radius: 24px;
     padding: 2rem;
     margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: var(--card-border);
 }
 
 .chart-header {
@@ -387,7 +442,9 @@
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .chart-empty {
@@ -495,11 +552,12 @@
 
 /* AI Info Section */
 .ai-info-section {
-    background: rgba(102, 126, 234, 0.1);
-    backdrop-filter: blur(20px);
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
     border-radius: 16px;
     padding: 1.5rem;
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    border: var(--card-border);
     display: flex;
     align-items: flex-start;
     gap: 1rem;

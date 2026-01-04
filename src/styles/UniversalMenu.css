@@ -54,6 +54,7 @@
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -81,6 +82,7 @@
     from {
         transform: translateX(-100%);
     }
+
     to {
         transform: translateX(0);
     }
@@ -164,18 +166,17 @@
     .universal-menu {
         width: 260px;
     }
-    
+
     .universal-menu-header {
         padding: 1.25rem 1.25rem 0.875rem 1.25rem;
     }
-    
+
     .universal-menu-header h2 {
         font-size: 1.2rem;
     }
-    
+
     .universal-menu-item {
         padding: 0.75rem 1.25rem;
         font-size: 0.95rem;
     }
 }
-

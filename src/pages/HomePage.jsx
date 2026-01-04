@@ -23,32 +23,32 @@ const LogoutIcon = () => (
 
 const FocusIcon = () => (
   <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2C7 2 2 7 2 12s5 10 10 10 10-5 10-10S17 2 12 2z" stroke="#fff"/>
-    <path d="M15 9a3 3 0 0 0-6 0c0 1.5 1.5 2.5 3 2.5s3-1 3-2.5z" stroke="#fff"/>
-    <circle cx="12" cy="12" r="10" stroke="#38f9d7" strokeWidth="0.5"/>
+    <path d="M12 2C7 2 2 7 2 12s5 10 10 10 10-5 10-10S17 2 12 2z" stroke="#fff" />
+    <path d="M15 9a3 3 0 0 0-6 0c0 1.5 1.5 2.5 3 2.5s3-1 3-2.5z" stroke="#fff" />
+    <circle cx="12" cy="12" r="10" stroke="#38f9d7" strokeWidth="0.5" />
   </svg>
 );
 
 const TimerIcon = () => (
   <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="13" r="8" stroke="#fff"/>
-    <line x1="12" y1="13" x2="12" y2="9" stroke="#fff"/>
-    <line x1="12" y1="13" x2="15" y2="13" stroke="#fff"/>
+    <circle cx="12" cy="13" r="8" stroke="#fff" />
+    <line x1="12" y1="13" x2="12" y2="9" stroke="#fff" />
+    <line x1="12" y1="13" x2="15" y2="13" stroke="#fff" />
   </svg>
 );
 
 const ChronoIcon = () => (
   <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="13" r="8" stroke="#fff"/>
-    <polyline points="12 13 16 13 16 17" stroke="#fff"/>
-    <line x1="12" y1="13" x2="12" y2="9" stroke="#fff"/>
+    <circle cx="12" cy="13" r="8" stroke="#fff" />
+    <polyline points="12 13 16 13 16 17" stroke="#fff" />
+    <line x1="12" y1="13" x2="12" y2="9" stroke="#fff" />
   </svg>
 );
 
 const TaskIcon = () => (
   <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 11l3 3L22 4" stroke="#fff"/>
-    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#fff"/>
+    <path d="M9 11l3 3L22 4" stroke="#fff" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#fff" />
   </svg>
 );
 
@@ -65,8 +65,8 @@ const TIMER_DEFAULT = 25 * 60; // 25:00
 
 const SettingsIcon = () => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"/>
-    <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24" />
   </svg>
 );
 
@@ -105,7 +105,7 @@ const HomePage = () => {
   const [showTimerSettings, setShowTimerSettings] = useState(false);
   const [accumulatedTime, setAccumulatedTime] = useState(0); // toplam geçen süre (saniye)
   const userId = parseInt(localStorage.getItem('userId') || '1', 10);
-  
+
   // userId kontrolü
   useEffect(() => {
     if (!userId || userId <= 0) {
@@ -128,7 +128,7 @@ const HomePage = () => {
     if (mode !== 'timer' || !timerRunning || timerPaused) return;
     timerRef.current = setInterval(() => {
       setTimer((prev) => {
-        if (prev > 0) { 
+        if (prev > 0) {
           setAccumulatedTime(prevAcc => prevAcc + 1);
           return prev - 1;
         }
@@ -148,7 +148,7 @@ const HomePage = () => {
   }, [chronoRunning, mode]);
 
   // Format helpers
-  const formatTime = (sec) => `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+  const formatTime = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
 
   // Tooltip state
   const [focusTooltip, setFocusTooltip] = useState(false);
@@ -166,7 +166,7 @@ const HomePage = () => {
     e.preventDefault();
     if (!newTask.trim()) return;
 
-    
+
     const userId = 1; // TODO: Giriş yapan kullanıcıdan al
     const today = new Date();
     // DateOnly formatı için yyyy-MM-dd stringi oluştur
@@ -188,8 +188,8 @@ const HomePage = () => {
   };
 
   const toggleTask = (taskId) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => 
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
         task.id === taskId ? { ...task, completed: !task.completed } : task
       )
     );
@@ -207,14 +207,14 @@ const HomePage = () => {
       setTimerRunning(true);
       return;
     }
-    
+
     // Yeni session başlat
     setTimerRunning(true);
     setTimerPaused(false);
     const startTime = Date.now();
     setFocusStartTime(startTime);
     setAccumulatedTime(0);
-    
+
     try {
       // Yeni focus session oluştur
       const response = await api.post('/api/Focus', {
@@ -224,7 +224,7 @@ const HomePage = () => {
         distractions: 0,
         notes: ''
       });
-      
+
       setCurrentFocusSessionId(response.data.id);
     } catch (error) {
       console.error('Focus session oluşturulurken hata:', error);
@@ -242,12 +242,12 @@ const HomePage = () => {
   const handleFocusComplete = useCallback(async () => {
     setTimerRunning(false);
     setTimerPaused(false);
-    
+
     if (focusStartTime) {
       const endTime = Date.now();
       const elapsed = Math.floor((endTime - focusStartTime) / 1000);
       const durationMinutes = Math.max(1, Math.floor(elapsed / 60)); // En az 1 dakika
-      
+
       try {
         if (currentFocusSessionId) {
           // Mevcut session'ı güncelle
@@ -259,7 +259,7 @@ const HomePage = () => {
           // Session ID yoksa yeni session oluştur (EndTime ve Duration ile)
           const startTimeISO = new Date(focusStartTime).toISOString();
           const endTimeISO = new Date(endTime).toISOString();
-          
+
           await api.post('/api/Focus', {
             userId: userId,
             task: 'Focus Session',
@@ -270,7 +270,7 @@ const HomePage = () => {
             notes: ''
           });
         }
-        
+
         // Bugünkü toplam süreyi yeniden yükle
         const response = await api.get(`/api/Focus/user/${userId}/today`);
         const todaySessions = response.data || [];
@@ -284,7 +284,7 @@ const HomePage = () => {
         console.error('Hata detayları:', error.response?.data || error.message);
         alert('Focus session kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
       }
-      
+
       setFocusStartTime(null);
       setCurrentFocusSessionId(null);
       setAccumulatedTime(0);
@@ -294,9 +294,9 @@ const HomePage = () => {
 
   // Mode değişince timer/chrono resetle
   useEffect(() => {
-    if (mode === 'timer') { 
-      setTimer(selectedTimerDuration * 60); 
-      setTimerRunning(false); 
+    if (mode === 'timer') {
+      setTimer(selectedTimerDuration * 60);
+      setTimerRunning(false);
       setTimerPaused(false);
       setAccumulatedTime(0);
       setFocusStartTime(null);
@@ -376,7 +376,7 @@ const HomePage = () => {
           )}
         </div>
         <div className="focus-mode-icon-wrapper">
-          <div className="focus-mode-icon" onClick={() => setMode(mode === 'clock' ? 'timer' : 'clock')} onMouseEnter={()=>setFocusTooltip(true)} onMouseLeave={()=>setFocusTooltip(false)}>
+          <div className="focus-mode-icon" onClick={() => setMode(mode === 'clock' ? 'timer' : 'clock')} onMouseEnter={() => setFocusTooltip(true)} onMouseLeave={() => setFocusTooltip(false)}>
             <FocusIcon />
             <span className="focus-mode-count">{formatDuration(focusTotalSeconds)}</span>
             {focusTooltip && <span className="focus-tooltip">focus mode</span>}
@@ -395,18 +395,18 @@ const HomePage = () => {
         {mode === 'timer' && (
           <div className="circle-timer">
             <div className="circle-timer-header">
-              <div className="circle-timer-icon" onClick={()=>setMode('chrono')} onMouseEnter={()=>setModeTooltip(true)} onMouseLeave={()=>setModeTooltip(false)}>
+              <div className="circle-timer-icon" onClick={() => setMode('chrono')} onMouseEnter={() => setModeTooltip(true)} onMouseLeave={() => setModeTooltip(false)}>
                 <TimerIcon />
                 {modeTooltip && <span className="mode-tooltip">kronometre</span>}
               </div>
-              <div 
-                className="timer-settings-icon" 
+              <div
+                className="timer-settings-icon"
                 onClick={() => setShowTimerSettings(!showTimerSettings)}
               >
                 <SettingsIcon />
                 {showTimerSettings && (
-                  <div 
-                    className="timer-settings-menu" 
+                  <div
+                    className="timer-settings-menu"
                     onMouseEnter={() => setShowTimerSettings(true)}
                     onMouseLeave={() => setShowTimerSettings(false)}
                   >
@@ -452,16 +452,16 @@ const HomePage = () => {
         )}
         {mode === 'chrono' && (
           <div className="circle-timer">
-            <div className="circle-timer-icon" onClick={()=>setMode('timer')} onMouseEnter={()=>setModeTooltip(true)} onMouseLeave={()=>setModeTooltip(false)}>
+            <div className="circle-timer-icon" onClick={() => setMode('timer')} onMouseEnter={() => setModeTooltip(true)} onMouseLeave={() => setModeTooltip(false)}>
               <ChronoIcon />
               {modeTooltip && <span className="mode-tooltip">zamanlayıcı</span>}
             </div>
             <div className="circle-timer-time">{formatTime(chrono)}</div>
             <div className="circle-timer-buttons">
               {chronoRunning ? (
-                <button className="timer-btn" onClick={()=>setChronoRunning(false)}>Durdur</button>
+                <button className="timer-btn" onClick={() => setChronoRunning(false)}>Durdur</button>
               ) : (
-                <button className="timer-btn" onClick={()=>setChronoRunning(true)}>Başlat</button>
+                <button className="timer-btn" onClick={() => setChronoRunning(true)}>Başlat</button>
               )}
             </div>
           </div>
@@ -485,15 +485,21 @@ const HomePage = () => {
           📝
         </button>
         <button className="quick-btn" onClick={() => navigate('/projects')} title="Projeler">
-          📋
+          💼
         </button>
         <button className="quick-btn" onClick={() => navigate('/kanban')} title="Kanban">
-          📊
+          📋
+        </button>
+        <button className="quick-btn" onClick={() => navigate('/finance')} title="Finans">
+          💰
+        </button>
+        <button className="quick-btn" onClick={() => navigate('/notes')} title="Notlar">
+          🗒️
         </button>
       </div>
-      
+
       {/* Sağ alt çıkış butonu */}
-      <button className="logout-button" onClick={()=>navigate('/')}> <LogoutIcon /> </button>
+      <button className="logout-button" onClick={() => navigate('/')}> <LogoutIcon /> </button>
     </div>
   );
 };

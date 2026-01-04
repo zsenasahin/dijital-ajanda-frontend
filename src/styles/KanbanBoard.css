@@ -1,7 +1,8 @@
 /* Modern Kanban Board - Glassmorphism Style */
 .kanban-container {
     min-height: 100vh;
-    background-image: url('../assets/pexels-orlovamaria-4947406.jpg');
+    min-height: 100vh;
+    background: var(--theme-background);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -84,14 +85,14 @@
 }
 
 .stat-item {
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
     border-radius: 20px;
     padding: 1.5rem;
     text-align: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
     transition: all 0.3s ease;
 }
 
@@ -105,14 +106,17 @@
     display: block;
     font-size: 2.5rem;
     font-weight: 700;
-    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--card-text-primary);
     margin-bottom: 0.5rem;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .stat-label {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+    color: var(--card-text-secondary);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -128,12 +132,12 @@
 
 /* Columns */
 .kanban-column {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--card-bg);
+    backdrop-filter: var(--card-backdrop);
+    -webkit-backdrop-filter: var(--card-backdrop);
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
     overflow: hidden;
     transition: all 0.3s ease;
 }
@@ -179,12 +183,12 @@
 
 /* Task Cards */
 .task-card {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--item-bg);
     border-radius: 16px;
     padding: 1.25rem;
     margin-bottom: 1rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: var(--card-border);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -242,7 +246,9 @@
 .task-header h4 {
     font-size: 1rem;
     font-weight: 600;
-    color: #1f2937;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--card-text-primary);
     margin: 0;
     line-height: 1.4;
     flex: 1;

@@ -12,28 +12,33 @@ import Journal from './pages/Journal';
 import Projects from './pages/Projects';
 import KanbanBoard from './pages/KanbanBoard';
 import ProfilePage from './pages/ProfilePage';
-import ChatbotWidget from './components/ChatbotWidget';
+import Finance from './pages/Finance';
+import QuickNotes from './pages/QuickNotes';
+
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
   return (
-    <Router>
-      {/* Global mini asistan widget */}
-      <ChatbotWidget />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/goals" element={<Goals />} />
-        <Route path="/habits" element={<Habits />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/books" element={<Books />} />
-        <Route path="/journal" element={<Journal />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/kanban" element={<KanbanBoard />} />
-        <Route path="/profile" element={<ProfilePage />} />
-      </Routes>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/habits" element={<Habits />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/books" element={<Books />} />
+          <Route path="/journal" element={<Journal />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/kanban" element={<KanbanBoard />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/finance" element={<Finance />} />
+          <Route path="/notes" element={<QuickNotes />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 
